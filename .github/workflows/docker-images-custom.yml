@@ -2,6 +2,10 @@ name: Docker Custom Image CI
 run-name: Build ${{ github.ref_name }} - ${{ github.actor }}
 
 on:
+  pull_request:
+    branches:
+      - dev
+      - master
   workflow_dispatch:
 
 jobs:
