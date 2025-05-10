@@ -130,10 +130,10 @@ const onAddActivationKey = () => {
 	sendUsageTelemetry('add_activation_key');
 };
 
-const onViewPlans = () => {
-	void pageRedirectionHelper.goToUpgrade('usage_page', 'open');
-	sendUsageTelemetry('view_plans');
-};
+// const onViewPlans = () => {
+// 	void pageRedirectionHelper.goToUpgrade('usage_page', 'open');
+// 	sendUsageTelemetry('view_plans');
+// };
 
 const onManagePlan = () => {
 	sendUsageTelemetry('manage_plan');
@@ -244,7 +244,7 @@ const openCommunityRegisterModal = () => {
 						locale.baseText('settings.usageAndPlan.button.manage')
 					}}</a>
 				</n8n-button>
-				<n8n-button v-else size="large" @click.prevent="onViewPlans">
+				<n8n-button v-else size="large">
 					<a :href="viewPlansUrl" target="_blank">{{
 						locale.baseText('settings.usageAndPlan.button.plans')
 					}}</a>
