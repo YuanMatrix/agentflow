@@ -10,8 +10,8 @@ on:
       - packages/cli/src/modules/*/database/**
       - .github/workflows/ci-postgres-mysql.yml
       - .github/docker-compose.yml
-  pull_request_review:
-    types: [submitted]
+  # pull_request_review:
+  #   types: [submitted]
 
 concurrency:
   group: db-${{ github.event.pull_request.number || github.ref }}

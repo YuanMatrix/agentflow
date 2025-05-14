@@ -9,9 +9,9 @@ on:
       - packages/core/package.json
       - packages/nodes-base/package.json
       - packages/@n8n/nodes-langchain/package.json
-      - .github/workflows/test-workflows.yml
-  pull_request_review:
-    types: [submitted]
+      # - .github/workflows/test-workflows.yml
+  # pull_request_review:
+  #   types: [submitted]
 
 jobs:
   build:
