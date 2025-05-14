@@ -20,7 +20,7 @@ export class MainSidebar extends BasePage {
 		executions: () => this.getters.menuItem('executions'),
 		adminPanel: () => this.getters.menuItem('cloud-admin'),
 		userMenu: () => cy.getByTestId('user-menu'),
-		logo: () => cy.getByTestId('inmo-logo'),
+		logo: () => cy.getByTestId('n8n-logo'),
 	};
 
 	actions = {
