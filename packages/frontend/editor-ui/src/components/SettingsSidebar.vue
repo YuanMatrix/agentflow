@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { ABOUT_MODAL_KEY, VIEWS } from '@/constants';
 import { useUserHelpers } from '@/composables/useUserHelpers';
 import type { IMenuItem } from '@n8n/design-system';
@@ -9,6 +9,7 @@ import { useRootStore } from '@/stores/root.store';
 import { hasPermission } from '@/utils/rbac/permissions';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from '@/composables/useI18n';
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 
 const emit = defineEmits<{
 	return: [];
@@ -23,6 +24,15 @@ const { canUserAccessRouteByName } = useUserHelpers(router, route);
 const rootStore = useRootStore();
 const settingsStore = useSettingsStore();
 const uiStore = useUIStore();
+
+// Watch for language changes
+watch(
+	() => rootStore.currentLocale,
+	() => {
+		// Force component update when language changes
+		i18n.clearCache();
+	},
+);
 
 const sidebarMenuItems = computed<IMenuItem[]>(() => {
 	const menuItems: IMenuItem[] = [
@@ -141,6 +151,7 @@ const sidebarMenuItems = computed<IMenuItem[]>(() => {
 					<n8n-link size="small" @click="uiStore.openModal(ABOUT_MODAL_KEY)">
 						{{ i18n.baseText('settings.version') }} {{ rootStore.versionCli }}
 					</n8n-link>
+					<LanguageSwitcher />
 				</div>
 			</template>
 		</n8n-menu>

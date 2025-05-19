@@ -35,6 +35,9 @@ export const useRootStore = defineStore(STORES.ROOT, () => {
 		binaryDataMode: 'default',
 	});
 
+	// Add a reactive language state
+	const currentLocale = ref(state.value.defaultLocale);
+
 	// ---------------------------------------------------------------------------
 	// #region Computed
 	// ---------------------------------------------------------------------------
@@ -168,6 +171,7 @@ export const useRootStore = defineStore(STORES.ROOT, () => {
 
 	const setDefaultLocale = (locale: string) => {
 		state.value.defaultLocale = locale;
+		currentLocale.value = locale;
 	};
 
 	const setBinaryDataMode = (binaryDataMode: RootState['binaryDataMode']) => {
@@ -199,6 +203,7 @@ export const useRootStore = defineStore(STORES.ROOT, () => {
 		executionTimeout,
 		maxExecutionTimeout,
 		timezone,
+		currentLocale,
 		setUrlBaseWebhook,
 		setUrlBaseEditor,
 		setEndpointForm,
