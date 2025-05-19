@@ -56,7 +56,10 @@ export class NodeMailer {
 					{
 						cid: 'inmo-logo',
 						filename: 'inmo-logo.png',
-						path: path.resolve(__dirname, '../../../../../assets/inmo-logo.png'),
+						path: path.resolve(
+							__dirname,
+							'../../../../frontend/editor-ui/public/static/inmo-logo.png',
+						),
 						contentDisposition: 'inline',
 					},
 				],

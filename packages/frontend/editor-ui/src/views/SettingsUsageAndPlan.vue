@@ -13,7 +13,7 @@ import N8nInfoTip from '@n8n/design-system/components/N8nInfoTip';
 import { COMMUNITY_PLUS_ENROLLMENT_MODAL } from '@/constants';
 import { useUsersStore } from '@/stores/users.store';
 import { getResourcePermissions } from '@/permissions';
-import { usePageRedirectionHelper } from '@/composables/usePageRedirectionHelper';
+// import { usePageRedirectionHelper } from '@/composables/usePageRedirectionHelper';
 
 const usageStore = useUsageStore();
 const route = useRoute();
@@ -22,7 +22,7 @@ const uiStore = useUIStore();
 const usersStore = useUsersStore();
 const toast = useToast();
 const documentTitle = useDocumentTitle();
-const pageRedirectionHelper = usePageRedirectionHelper();
+// const pageRedirectionHelper = usePageRedirectionHelper();
 
 const queryParamCallback = ref<string>(
 	`callback=${encodeURIComponent(`${window.location.origin}${window.location.pathname}`)}`,
