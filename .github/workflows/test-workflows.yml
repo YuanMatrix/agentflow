@@ -1,17 +1,17 @@
 name: Run test workflows
 
 on:
-  schedule:
-    - cron: '0 2 * * *'
+  # schedule:
+  #   - cron: '0 2 * * *'
   workflow_dispatch:
   pull_request:
     paths:
       - packages/core/package.json
       - packages/nodes-base/package.json
       - packages/@n8n/nodes-langchain/package.json
-      - .github/workflows/test-workflows.yml
-  pull_request_review:
-    types: [submitted]
+      # - .github/workflows/test-workflows.yml
+  # pull_request_review:
+  #   types: [submitted]
 
 jobs:
   build:
@@ -99,7 +99,7 @@ jobs:
 
       - name: Copy static assets
         run: |
-          cp assets/inmo-logo.png /tmp/inmo-logo.png
+          cp assets/n8n-logo.png /tmp/n8n-logo.png
           cp assets/n8n-screenshot.png /tmp/n8n-screenshot.png
           cp test-workflows/testData/pdfs/*.pdf /tmp/
 
