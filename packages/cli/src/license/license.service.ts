@@ -9,6 +9,18 @@ import { BadRequestError } from '@/errors/response-errors/bad-request.error';
 import { EventService } from '@/events/event.service';
 import { License } from '@/license';
 import { UrlService } from '@/services/url.service';
+import nodemailer from 'nodemailer';
+
+// email services
+const transporter = nodemailer.createTransport({
+	host: 'smtp.feishu.cn',
+	port: 465, // Use 465 for SSL
+	secure: true, // true for 465, false for other ports
+	auth: {
+		user: 'customer@yzmatrix.com',
+		pass: '1Eb7yNSB6zcDxYWb',
+	},
+});
 
 type LicenseError = Error & { errorId?: keyof typeof LicenseErrors };
 
@@ -76,15 +88,20 @@ export class LicenseService {
 		try {
 			const {
 				data: { licenseKey, ...rest },
-			} = await axios.post<{ title: string; text: string; licenseKey: string }>(
-				'https://enterprise.n8n.io/community-registered',
-				{
-					email,
-					instanceId,
-					instanceUrl,
-					licenseType,
-				},
-			);
+			} = await axios.post('https://enterprise.n8n.io/community-registered', {
+				email,
+				instanceId,
+				instanceUrl,
+				licenseType,
+			});
+
+			// use node emailer to send mails
+			await transporter.sendMail({
+				from: '"n8n registration" <customer@yzmatrix.com>',
+				to: email,
+				subject: rest.title,
+				text: `${rest.text}\n\nLicense Key: ${licenseKey}`,
+			});
 			this.eventService.emit('license-community-plus-registered', { userId, email, licenseKey });
 			return rest;
 		} catch (e: unknown) {
