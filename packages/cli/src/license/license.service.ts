@@ -9,18 +9,7 @@ import { BadRequestError } from '@/errors/response-errors/bad-request.error';
 import { EventService } from '@/events/event.service';
 import { License } from '@/license';
 import { UrlService } from '@/services/url.service';
-import nodemailer from 'nodemailer';
-
-// email services
-const transporter = nodemailer.createTransport({
-	host: 'smtp.feishu.cn',
-	port: 465, // Use 465 for SSL
-	secure: true, // true for 465, false for other ports
-	auth: {
-		user: 'customer@yzmatrix.com',
-		pass: '1Eb7yNSB6zcDxYWb',
-	},
-});
+import { NodeMailer } from '@/user-management/email/node-mailer';
 
 type LicenseError = Error & { errorId?: keyof typeof LicenseErrors };
 
@@ -41,6 +30,7 @@ export class LicenseService {
 		private readonly workflowRepository: WorkflowRepository,
 		private readonly urlService: UrlService,
 		private readonly eventService: EventService,
+		private readonly nodeMailer: NodeMailer,
 	) {}
 
 	async getLicenseData() {
@@ -95,13 +85,14 @@ export class LicenseService {
 				licenseType,
 			});
 
-			// use node emailer to send mails
-			await transporter.sendMail({
-				from: '"n8n registration" <customer@yzmatrix.com>',
-				to: email,
+			// Use NodeMailer service to send email
+			await this.nodeMailer.sendMail({
+				emailRecipients: [email],
 				subject: rest.title,
-				text: `${rest.text}\n\nLicense Key: ${licenseKey}`,
+				textOnly: `${rest.text}\n\nLicense Key: ${licenseKey}`,
+				body: `${rest.text}\n\nLicense Key: ${licenseKey}`,
 			});
+
 			this.eventService.emit('license-community-plus-registered', { userId, email, licenseKey });
 			return rest;
 		} catch (e: unknown) {
