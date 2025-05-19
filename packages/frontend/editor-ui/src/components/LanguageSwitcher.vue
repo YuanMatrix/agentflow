@@ -19,8 +19,6 @@
 import { defineComponent } from 'vue';
 import { ArrowDown } from '@element-plus/icons-vue';
 import { loadLanguage } from '@/plugins/i18n';
-import { useRootStore } from '@/stores/root.store';
-
 export default defineComponent({
 	name: 'LanguageSwitcher',
 	components: {
@@ -36,7 +34,6 @@ export default defineComponent({
 			try {
 				await loadLanguage(lang);
 				this.currentLanguage = lang;
-				const rootStore = useRootStore();
 				// Store the language preference in localStorage
 				localStorage.setItem('n8n-language', lang);
 				window.location.reload();

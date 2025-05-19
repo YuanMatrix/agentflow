@@ -148,10 +148,11 @@ const sidebarMenuItems = computed<IMenuItem[]>(() => {
 			</template>
 			<template #menuSuffix>
 				<div :class="$style.versionContainer">
+					<LanguageSwitcher />
+					<br />
 					<n8n-link size="small" @click="uiStore.openModal(ABOUT_MODAL_KEY)">
 						{{ i18n.baseText('settings.version') }} {{ rootStore.versionCli }}
 					</n8n-link>
-					<LanguageSwitcher />
 				</div>
 			</template>
 		</n8n-menu>
