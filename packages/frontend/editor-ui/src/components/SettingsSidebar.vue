@@ -9,7 +9,7 @@ import { useRootStore } from '@/stores/root.store';
 import { hasPermission } from '@/utils/rbac/permissions';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from '@/composables/useI18n';
-import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
+import SettingsLanguageSwitcher from '@/components/SettingsLanguageSwitcher.vue';
 
 const emit = defineEmits<{
 	return: [];
@@ -148,7 +148,7 @@ const sidebarMenuItems = computed<IMenuItem[]>(() => {
 			</template>
 			<template #menuSuffix>
 				<div :class="$style.versionContainer">
-					<LanguageSwitcher />
+					<SettingsLanguageSwitcher />
 					<br />
 					<n8n-link size="small" @click="uiStore.openModal(ABOUT_MODAL_KEY)">
 						{{ i18n.baseText('settings.version') }} {{ rootStore.versionCli }}
