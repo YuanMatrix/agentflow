@@ -160,6 +160,7 @@ async function saveUserSettings(params: UserBasicDetailsWithMfa) {
 			message: '',
 			type: 'success',
 		});
+		window.location.reload();
 	} catch (e) {
 		showError(e, i18n.baseText('settings.personal.personalSettingsUpdatedError'));
 	}
@@ -206,7 +207,7 @@ async function updatePersonalisationSettings() {
 	}
 
 	uiStore.setTheme(currentSelectedTheme.value);
-	uiStore.setLanguage(currentSelectedLanguage.value);
+	await uiStore.setLanguage(currentSelectedLanguage.value);
 }
 
 function onSaveClick() {
@@ -458,5 +459,6 @@ onBeforeUnmount(() => {
 
 .themeSelect {
 	max-width: 50%;
+	margin-bottom: 10px;
 }
 </style>
