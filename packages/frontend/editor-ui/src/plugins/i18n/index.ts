@@ -3,7 +3,7 @@ import { createI18n } from 'vue-i18n';
 import { locale } from '@n8n/design-system';
 import type { INodeProperties, INodePropertyCollection, INodePropertyOptions } from 'n8n-workflow';
 
-import type { INodeTranslationHeaders } from '@/Interface';
+import type { INodeTranslationHeaders, LanguageOption } from '@/Interface';
 import { useUIStore } from '@/stores/ui.store';
 import { useNDVStore } from '@/stores/ndv.store';
 import { useRootStore } from '@/stores/root.store';
@@ -16,9 +16,12 @@ import {
 	insertOptionsAndValues,
 } from './utils';
 
+let defaulLanguage: LanguageOption =
+	(localStorage.getItem('n8n-language') as LanguageOption) ?? 'English';
+
 export const i18nInstance = createI18n({
-	locale: 'en',
-	fallbackLocale: 'en',
+	locale: defaulLanguage == 'English' ? 'en' : 'zh',
+	fallbackLocale: defaulLanguage == 'English' ? 'en' : 'zh',
 	messages: {
 		en: englishBaseText,
 		zh: chineseBaseText,
@@ -389,9 +392,7 @@ export class I18nClass {
 	};
 }
 
-const loadedLanguages = ['en', 'zh'];
-
-async function setLanguage(language: string) {
+async function changeLanguage(language: string) {
 	const rootStore = useRootStore();
 
 	i18nInstance.global.locale = language as 'en' | 'zh';
@@ -417,14 +418,6 @@ async function setLanguage(language: string) {
 }
 
 export async function loadLanguage(language: string) {
-	if (i18nInstance.global.locale === language) {
-		return await setLanguage(language);
-	}
-
-	if (loadedLanguages.includes(language)) {
-		return await setLanguage(language);
-	}
-
 	const { numberFormats, ...rest } = (await import(`./locales/${language}.json`)).default;
 
 	i18nInstance.global.setLocaleMessage(language, rest);
@@ -433,9 +426,7 @@ export async function loadLanguage(language: string) {
 		i18nInstance.global.setNumberFormat(language, numberFormats);
 	}
 
-	loadedLanguages.push(language);
-
-	return await setLanguage(language);
+	return await changeLanguage(language);
 }
 
 /**

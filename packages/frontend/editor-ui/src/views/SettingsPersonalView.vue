@@ -3,7 +3,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useI18n } from '@/composables/useI18n';
 import { useToast } from '@/composables/useToast';
 import { useDocumentTitle } from '@/composables/useDocumentTitle';
-import type { IFormInputs, IUser, ThemeOption } from '@/Interface';
+import type { IFormInputs, IUser, ThemeOption, LanguageOption } from '@/Interface';
 import {
 	CHANGE_PASSWORD_MODAL_KEY,
 	MFA_DOCS_URL,
@@ -37,6 +37,7 @@ const formInputs = ref<null | IFormInputs>(null);
 const formBus = createFormEventBus();
 const readyToSubmit = ref(false);
 const currentSelectedTheme = ref(useUIStore().theme);
+const currentSelectedLanguage = ref(useUIStore().language);
 const themeOptions = ref<Array<{ name: ThemeOption; label: BaseTextKey }>>([
 	{
 		name: 'system',
@@ -49,6 +50,17 @@ const themeOptions = ref<Array<{ name: ThemeOption; label: BaseTextKey }>>([
 	{
 		name: 'dark',
 		label: 'settings.personal.theme.dark',
+	},
+]);
+
+const languageOptions = ref<Array<{ name: LanguageOption; label: BaseTextKey }>>([
+	{
+		name: 'English',
+		label: 'settings.personal.language.english',
+	},
+	{
+		name: 'Chinese',
+		label: 'settings.personal.language.chinese',
 	},
 ]);
 
@@ -76,7 +88,10 @@ const isMfaFeatureEnabled = computed((): boolean => {
 	return settingsStore.isMfaFeatureEnabled;
 });
 const hasAnyPersonalisationChanges = computed((): boolean => {
-	return currentSelectedTheme.value !== uiStore.theme;
+	return (
+		currentSelectedTheme.value !== uiStore.theme ||
+		currentSelectedLanguage.value !== uiStore.language
+	);
 });
 const hasAnyChanges = computed(() => {
 	return hasAnyBasicInfoChanges.value || hasAnyPersonalisationChanges.value;
@@ -191,10 +206,12 @@ async function updatePersonalisationSettings() {
 	}
 
 	uiStore.setTheme(currentSelectedTheme.value);
+	uiStore.setLanguage(currentSelectedLanguage.value);
 }
 
 function onSaveClick() {
 	formBus.emit('submit');
+	console.log('clicked');
 }
 
 function openPasswordModal() {
@@ -345,6 +362,22 @@ onBeforeUnmount(() => {
 					>
 						<n8n-option
 							v-for="item in themeOptions"
+							:key="item.name"
+							:label="i18n.baseText(item.label)"
+							:value="item.name"
+						>
+						</n8n-option>
+					</n8n-select>
+				</n8n-input-label>
+				<n8n-input-label :label="i18n.baseText('settings.personal.language')">
+					<n8n-select
+						v-model="currentSelectedLanguage"
+						:class="$style.themeSelect"
+						size="small"
+						filterable
+					>
+						<n8n-option
+							v-for="item in languageOptions"
 							:key="item.name"
 							:label="i18n.baseText(item.label)"
 							:value="item.name"
