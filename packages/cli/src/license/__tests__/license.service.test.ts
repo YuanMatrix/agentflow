@@ -7,6 +7,7 @@ import { BadRequestError } from '@/errors/response-errors/bad-request.error';
 import type { EventService } from '@/events/event.service';
 import type { License } from '@/license';
 import { LicenseErrors, LicenseService } from '@/license/license.service';
+import type { NodeMailer } from '@/user-management/email/node-mailer';
 
 jest.mock('axios');
 
@@ -15,12 +16,14 @@ describe('LicenseService', () => {
 	const workflowRepository = mock<WorkflowRepository>();
 	const entitlement = mock<TEntitlement>({ productId: '123' });
 	const eventService = mock<EventService>();
+	const nodeMailer = mock<NodeMailer>();
 	const licenseService = new LicenseService(
 		mock(),
 		license,
 		workflowRepository,
 		mock(),
 		eventService,
+		nodeMailer,
 	);
 
 	license.getMainPlan.mockReturnValue(entitlement);

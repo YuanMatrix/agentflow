@@ -9,6 +9,7 @@ import { BadRequestError } from '@/errors/response-errors/bad-request.error';
 import { EventService } from '@/events/event.service';
 import { License } from '@/license';
 import { UrlService } from '@/services/url.service';
+import { NodeMailer } from '@/user-management/email/node-mailer';
 
 type LicenseError = Error & { errorId?: keyof typeof LicenseErrors };
 
@@ -29,6 +30,7 @@ export class LicenseService {
 		private readonly workflowRepository: WorkflowRepository,
 		private readonly urlService: UrlService,
 		private readonly eventService: EventService,
+		private readonly nodeMailer: NodeMailer,
 	) {}
 
 	async getLicenseData() {
@@ -76,15 +78,21 @@ export class LicenseService {
 		try {
 			const {
 				data: { licenseKey, ...rest },
-			} = await axios.post<{ title: string; text: string; licenseKey: string }>(
-				'https://enterprise.n8n.io/community-registered',
-				{
-					email,
-					instanceId,
-					instanceUrl,
-					licenseType,
-				},
-			);
+			} = await axios.post('https://enterprise.n8n.io/community-registered', {
+				email,
+				instanceId,
+				instanceUrl,
+				licenseType,
+			});
+
+			// Use NodeMailer service to send email
+			await this.nodeMailer.sendMail({
+				emailRecipients: [email],
+				subject: rest.title,
+				textOnly: `${rest.text}\n\nLicense Key: ${licenseKey}`,
+				body: `${rest.text}\n\nLicense Key: ${licenseKey}`,
+			});
+
 			this.eventService.emit('license-community-plus-registered', { userId, email, licenseKey });
 			return rest;
 		} catch (e: unknown) {

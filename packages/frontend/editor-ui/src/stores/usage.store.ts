@@ -52,7 +52,7 @@ export const useUsageStore = defineStore('usage', () => {
 	);
 	const subscriptionAppUrl = computed(() =>
 		settingsStore.settings.license.environment === 'production'
-			? 'https://subscription.n8n.io'
+			? 'https://inmo.yzmatrix.com/settings/usage'
 			: 'https://staging-subscription.n8n.io',
 	);
 

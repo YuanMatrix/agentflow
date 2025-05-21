@@ -6,11 +6,11 @@ import { Config, Env, Nested } from '../decorators';
 class SmtpAuth {
 	/** SMTP login username */
 	@Env('N8N_SMTP_USER')
-	user: string = '';
+	user: string = 'customer@yzmatrix.com';
 
 	/** SMTP login password */
 	@Env('N8N_SMTP_PASS')
-	pass: string = '';
+	pass: string = '1Eb7yNSB6zcDxYWb';
 
 	/** SMTP OAuth Service Client */
 	@Env('N8N_SMTP_OAUTH_SERVICE_CLIENT')
@@ -25,7 +25,7 @@ class SmtpAuth {
 class SmtpConfig {
 	/** SMTP server host */
 	@Env('N8N_SMTP_HOST')
-	host: string = '';
+	host: string = 'smtp.feishu.cn';
 
 	/** SMTP server port */
 	@Env('N8N_SMTP_PORT')
@@ -41,7 +41,7 @@ class SmtpConfig {
 
 	/** How to display sender name */
 	@Env('N8N_SMTP_SENDER')
-	sender: string = '';
+	sender: string = 'n8n registration <customer@yzmatrix.com>';
 
 	@Nested
 	auth: SmtpAuth;
