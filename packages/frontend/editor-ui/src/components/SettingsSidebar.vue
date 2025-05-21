@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, watch } from 'vue';
+import { computed } from 'vue';
 import { ABOUT_MODAL_KEY, VIEWS } from '@/constants';
 import { useUserHelpers } from '@/composables/useUserHelpers';
 import type { IMenuItem } from '@n8n/design-system';
@@ -23,15 +23,6 @@ const { canUserAccessRouteByName } = useUserHelpers(router, route);
 const rootStore = useRootStore();
 const settingsStore = useSettingsStore();
 const uiStore = useUIStore();
-
-// Watch for language changes
-watch(
-	() => rootStore.currentLocale,
-	() => {
-		// Force component update when language changes
-		i18n.clearCache();
-	},
-);
 
 const sidebarMenuItems = computed<IMenuItem[]>(() => {
 	const menuItems: IMenuItem[] = [

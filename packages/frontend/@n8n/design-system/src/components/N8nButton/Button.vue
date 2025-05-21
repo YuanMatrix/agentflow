@@ -14,7 +14,6 @@ const props = withDefaults(defineProps<ButtonProps>(), {
 	label: '',
 	type: 'primary',
 	size: 'medium',
-	gradient: false,
 	loading: false,
 	disabled: false,
 	outline: false,
@@ -49,8 +48,7 @@ const classes = computed(() => {
 		`${props.block ? ` ${$style.block}` : ''}` +
 		`${props.active ? ` ${$style.active}` : ''}` +
 		`${props.icon || props.loading ? ` ${$style.withIcon}` : ''}` +
-		`${props.square ? ` ${$style.square}` : ''}` +
-		`${props.gradient ? ` ${$style.gradient}` : ''}`
+		`${props.square ? ` ${$style.square}` : ''}`
 	);
 });
 </script>
@@ -113,6 +111,10 @@ $loading-overlay-background-color: rgba(255, 255, 255, 0);
 /**
  * Colors
  */
+
+.primary {
+	@include n8n-button-primary;
+}
 
 .secondary {
 	@include n8n-button-secondary;
