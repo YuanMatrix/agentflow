@@ -25,6 +25,7 @@ export interface IconButtonProps {
 	text?: boolean;
 	type?: ButtonType;
 	nativeType?: ButtonNativeType;
+	gradient?: boolean; // specify whether to include gradient. default false
 }
 
 export interface ButtonProps extends IconButtonProps {

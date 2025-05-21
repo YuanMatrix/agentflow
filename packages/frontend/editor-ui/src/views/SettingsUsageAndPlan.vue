@@ -239,12 +239,12 @@ const openCommunityRegisterModal = () => {
 				>
 					<span>{{ locale.baseText('settings.usageAndPlan.button.activation') }}</span>
 				</n8n-button>
-				<n8n-button v-if="usageStore.managementToken" size="large" @click="onManagePlan">
+				<n8n-button gradient v-if="usageStore.managementToken" size="large" @click="onManagePlan">
 					<a :href="managePlanUrl" target="_blank">{{
 						locale.baseText('settings.usageAndPlan.button.manage')
 					}}</a>
 				</n8n-button>
-				<n8n-button v-else size="large" @click.prevent="onViewPlans">
+				<n8n-button gradient v-else size="large" @click.prevent="onViewPlans">
 					<a :href="viewPlansUrl" target="_blank">{{
 						locale.baseText('settings.usageAndPlan.button.plans')
 					}}</a>

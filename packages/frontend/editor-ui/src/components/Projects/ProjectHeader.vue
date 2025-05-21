@@ -76,6 +76,7 @@ type ActionTypes = (typeof ACTION_TYPES)[keyof typeof ACTION_TYPES];
 
 const createWorkflowButton = computed(() => ({
 	value: ACTION_TYPES.WORKFLOW,
+	gradient: true,
 	label: i18n.baseText('projects.header.create.workflow'),
 	icon: sourceControlStore.preferences.branchReadOnly ? 'lock' : undefined,
 	size: 'mini' as const,

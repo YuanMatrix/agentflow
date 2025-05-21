@@ -14,6 +14,7 @@ const props = withDefaults(defineProps<ButtonProps>(), {
 	label: '',
 	type: 'primary',
 	size: 'medium',
+	gradient: false,
 	loading: false,
 	disabled: false,
 	outline: false,
@@ -48,7 +49,8 @@ const classes = computed(() => {
 		`${props.block ? ` ${$style.block}` : ''}` +
 		`${props.active ? ` ${$style.active}` : ''}` +
 		`${props.icon || props.loading ? ` ${$style.withIcon}` : ''}` +
-		`${props.square ? ` ${$style.square}` : ''}`
+		`${props.square ? ` ${$style.square}` : ''}` +
+		`${props.gradient ? ` ${$style.gradient}` : ''}`
 	);
 });
 </script>

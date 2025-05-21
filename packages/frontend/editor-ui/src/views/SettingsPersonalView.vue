@@ -393,6 +393,7 @@ onBeforeUnmount(() => {
 				float="right"
 				:label="i18n.baseText('settings.personal.save')"
 				size="large"
+				gradient
 				:disabled="!hasAnyChanges || !readyToSubmit"
 				data-test-id="save-settings-button"
 				@click="onSaveClick"

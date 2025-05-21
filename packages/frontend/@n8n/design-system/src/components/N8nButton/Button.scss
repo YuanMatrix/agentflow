@@ -31,6 +31,59 @@
 		color: $button-font-color unquote($important);
 	}
 
+	&.gradient {
+		background: linear-gradient(
+				to right,
+				hsl(
+					var(--prim-color-gradient-primary-start-h),
+					var(--prim-color-gradient-primary-start-s),
+					var(--prim-color-gradient-primary-start-l)
+				),
+				hsl(
+					var(--prim-color-gradient-primary-end-h),
+					var(--prim-color-gradient-primary-end-s),
+					var(--prim-color-gradient-primary-end-l)
+				)
+			)
+			unquote($important);
+		border: none;
+		color: white unquote($important);
+
+		&:hover {
+			background: linear-gradient(
+					to right,
+					hsl(
+						var(--prim-color-gradient-primary-start-h),
+						var(--prim-color-gradient-primary-start-s),
+						var(--prim-color-gradient-primary-start-hover-l)
+					),
+					hsl(
+						var(--prim-color-gradient-primary-end-h),
+						var(--prim-color-gradient-primary-end-s),
+						var(--prim-color-gradient-primary-end-hover-l)
+					)
+				)
+				unquote($important);
+		}
+
+		&:active {
+			background: linear-gradient(
+					to right,
+					hsl(
+						var(--prim-color-gradient-primary-start-h),
+						var(--prim-color-gradient-primary-start-s),
+						var(--prim-color-gradient-primary-start-active-l)
+					),
+					hsl(
+						var(--prim-color-gradient-primary-end-h),
+						var(--prim-color-gradient-primary-end-s),
+						var(--prim-color-gradient-primary-end-active-l)
+					)
+				)
+				unquote($important);
+		}
+	}
+
 	&:hover {
 		color: $button-hover-font-color unquote($important);
 		border-color: $button-hover-border-color unquote($important);
