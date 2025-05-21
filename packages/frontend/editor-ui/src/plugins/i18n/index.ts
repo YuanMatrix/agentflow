@@ -3,11 +3,12 @@ import { createI18n } from 'vue-i18n';
 import { locale } from '@n8n/design-system';
 import type { INodeProperties, INodePropertyCollection, INodePropertyOptions } from 'n8n-workflow';
 
-import type { INodeTranslationHeaders } from '@/Interface';
+import type { INodeTranslationHeaders, LanguageOption } from '@/Interface';
 import { useUIStore } from '@/stores/ui.store';
 import { useNDVStore } from '@/stores/ndv.store';
 import { useRootStore } from '@/stores/root.store';
 import englishBaseText from './locales/en.json';
+import chineseBaseText from './locales/zh.json';
 import {
 	deriveMiddleKey,
 	isNestedInCollectionLike,
@@ -15,10 +16,16 @@ import {
 	insertOptionsAndValues,
 } from './utils';
 
+let defaulLanguage: LanguageOption =
+	(localStorage.getItem('n8n-language') as LanguageOption) ?? 'English';
+
 export const i18nInstance = createI18n({
-	locale: 'en',
-	fallbackLocale: 'en',
-	messages: { en: englishBaseText },
+	locale: defaulLanguage == 'English' ? 'en' : 'zh',
+	fallbackLocale: defaulLanguage == 'English' ? 'en' : 'zh',
+	messages: {
+		en: englishBaseText,
+		zh: chineseBaseText,
+	},
 	warnHtmlInMessage: 'off',
 });
 
@@ -29,9 +36,21 @@ type BaseTextOptions = {
 
 export class I18nClass {
 	private baseTextCache = new Map<string, string>();
+	private updateKey = 0; // Add a reactive key
 
 	private get i18n() {
 		return i18nInstance.global;
+	}
+
+	// Add public method to clear cache
+	clearCache() {
+		this.baseTextCache.clear();
+		this.updateKey++; // Increment the key to force updates
+	}
+
+	// Add method to get current update key
+	getUpdateKey() {
+		return this.updateKey;
 	}
 
 	// ----------------------------------
@@ -373,28 +392,32 @@ export class I18nClass {
 	};
 }
 
-const loadedLanguages = ['en'];
+async function changeLanguage(language: string) {
+	const rootStore = useRootStore();
 
-async function setLanguage(language: string) {
-	i18nInstance.global.locale = language as 'en';
+	i18nInstance.global.locale = language as 'en' | 'zh';
 	axios.defaults.headers.common['Accept-Language'] = language;
 	document!.querySelector('html')!.setAttribute('lang', language);
 
+	// Update the root store's language state
+	rootStore.setDefaultLocale(language);
+
+	// Clear the baseTextCache when language changes
+	i18n.clearCache();
+
+	// Force Vue to update all components
+	i18nInstance.global.locale = language as 'en' | 'zh';
+
 	// update n8n design system and element ui
 	await locale.use(language);
+
+	console.log('Language changed to:', language);
+	console.log('Current translations:', i18nInstance.global.messages[language as 'en' | 'zh']);
 
 	return language;
 }
 
 export async function loadLanguage(language: string) {
-	if (i18nInstance.global.locale === language) {
-		return await setLanguage(language);
-	}
-
-	if (loadedLanguages.includes(language)) {
-		return await setLanguage(language);
-	}
-
 	const { numberFormats, ...rest } = (await import(`./locales/${language}.json`)).default;
 
 	i18nInstance.global.setLocaleMessage(language, rest);
@@ -403,9 +426,7 @@ export async function loadLanguage(language: string) {
 		i18nInstance.global.setNumberFormat(language, numberFormats);
 	}
 
-	loadedLanguages.push(language);
-
-	return await setLanguage(language);
+	return await changeLanguage(language);
 }
 
 /**
