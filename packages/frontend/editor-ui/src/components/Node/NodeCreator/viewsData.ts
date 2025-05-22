@@ -48,6 +48,7 @@ import {
 	IF_NODE_TYPE,
 	SPLIT_IN_BATCHES_NODE_TYPE,
 	HTTP_REQUEST_NODE_TYPE,
+	INMO_TRIGGER_SUBCATEGORY,
 	HELPERS_SUBCATEGORY,
 	HITL_SUBCATEGORY,
 	RSS_READ_NODE_TYPE,
@@ -337,6 +338,15 @@ export function TriggerView() {
 		title: i18n.baseText('nodeCreator.triggerHelperPanel.selectATrigger'),
 		subtitle: i18n.baseText('nodeCreator.triggerHelperPanel.selectATriggerDescription'),
 		items: [
+			{
+				key: INMO_TRIGGER_SUBCATEGORY,
+				type: 'subcategory',
+				category: [CORE_NODES_CATEGORY],
+				properties: {
+					title: INMO_TRIGGER_SUBCATEGORY,
+					icon: 'satellite-dish',
+				},
+			},
 			{
 				key: MANUAL_TRIGGER_NODE_TYPE,
 				type: 'node',
