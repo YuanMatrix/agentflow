@@ -48,6 +48,7 @@ function prefixBaseUrl(url: string) {
 }
 
 export function getNodeIconSource(nodeType?: IconNodeType | null): NodeIconSource | undefined {
+	console.log('received: ', nodeType);
 	if (!nodeType) return undefined;
 	const createFileIconSource = (src: string): NodeIconSource => ({
 		type: 'file',
@@ -64,16 +65,22 @@ export function getNodeIconSource(nodeType?: IconNodeType | null): NodeIconSourc
 	// If node type has icon data, use it
 	if ('iconData' in nodeType && nodeType.iconData) {
 		if (nodeType.iconData.icon) {
+			console.log(nodeType);
+			console.log('reached 1');
 			return createNamedIconSource(nodeType.iconData.icon);
 		}
 
 		if (nodeType.iconData.fileBuffer) {
+			console.log(nodeType);
+			console.log('reached 2');
 			return createFileIconSource(nodeType.iconData.fileBuffer);
 		}
 	}
 
 	const iconUrl = getNodeIconUrl(nodeType);
 	if (iconUrl) {
+		console.log(nodeType);
+		console.log('reached 3');
 		return createFileIconSource(prefixBaseUrl(iconUrl));
 	}
 
@@ -84,12 +91,19 @@ export function getNodeIconSource(nodeType?: IconNodeType | null): NodeIconSourc
 		if (icon) {
 			const [type, iconName] = icon.split(':');
 			if (type === 'file') {
+				console.log(nodeType);
+				console.log('reached 4');
 				return undefined;
 			}
+			console.log(nodeType);
+			console.log('reached 5');
 
 			return createNamedIconSource(iconName);
 		}
 	}
+
+	console.log(nodeType);
+	console.log('reached 6');
 
 	return undefined;
 }

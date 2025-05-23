@@ -339,15 +339,6 @@ export function TriggerView() {
 		subtitle: i18n.baseText('nodeCreator.triggerHelperPanel.selectATriggerDescription'),
 		items: [
 			{
-				key: INMO_TRIGGER_SUBCATEGORY,
-				type: 'subcategory',
-				category: [CORE_NODES_CATEGORY],
-				properties: {
-					title: INMO_TRIGGER_SUBCATEGORY,
-					icon: 'satellite-dish',
-				},
-			},
-			{
 				key: MANUAL_TRIGGER_NODE_TYPE,
 				type: 'node',
 				category: [CORE_NODES_CATEGORY],
@@ -441,6 +432,15 @@ export function TriggerView() {
 				properties: {
 					title: OTHER_TRIGGER_NODES_SUBCATEGORY,
 					icon: 'folder-open',
+				},
+			},
+			{
+				key: INMO_TRIGGER_SUBCATEGORY,
+				type: 'subcategory',
+				category: [CORE_NODES_CATEGORY],
+				properties: {
+					title: INMO_TRIGGER_SUBCATEGORY,
+					icon: 'file:inmo-superapp.svg',
 				},
 			},
 		],

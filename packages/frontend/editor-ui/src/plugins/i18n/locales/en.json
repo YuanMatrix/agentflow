@@ -1241,7 +1241,7 @@
 	"nodeCreator.subcategoryNames.chains": "Chains",
 	"nodeCreator.subcategoryNames.documentLoaders": "Document Loaders",
 	"nodeCreator.subcategoryNames.embeddings": "Embeddings",
-	"nodeCreator.subcategoryNames.inmoTriggers": "On INMO Trigger",
+	"nodeCreator.subcategoryNames.inmoTriggers": "Super App Control",
 	"nodeCreator.subcategoryNames.languageModels": "Language Models",
 	"nodeCreator.subcategoryNames.memory": "Memory",
 	"nodeCreator.subcategoryNames.outputParsers": "Output Parsers",

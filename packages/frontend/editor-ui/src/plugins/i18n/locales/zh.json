@@ -1241,7 +1241,7 @@
 	"nodeCreator.subcategoryNames.chains": "Chains",
 	"nodeCreator.subcategoryNames.documentLoaders": "文档加载器",
 	"nodeCreator.subcategoryNames.embeddings": "嵌入",
-	"nodeCreator.subcategoryNames.inmoTriggers": "INMO 触发器",
+	"nodeCreator.subcategoryNames.inmoTriggers": "超级APP控制",
 	"nodeCreator.subcategoryNames.languageModels": "语言模型",
 	"nodeCreator.subcategoryNames.memory": "记忆",
 	"nodeCreator.subcategoryNames.outputParsers": "输出解析器",
