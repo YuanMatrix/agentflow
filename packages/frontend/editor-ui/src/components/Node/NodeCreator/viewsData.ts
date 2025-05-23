@@ -58,6 +58,8 @@ import {
 	AI_CODE_TOOL_LANGCHAIN_NODE_TYPE,
 	AI_WORKFLOW_TOOL_LANGCHAIN_NODE_TYPE,
 	HUMAN_IN_THE_LOOP_CATEGORY,
+	INMO_APP_EVENT_TRIGGER_NODE_TYPE,
+	INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE,
 } from '@/constants';
 import { useI18n } from '@/composables/useI18n';
 import { useNodeTypesStore } from '@/stores/nodeTypes.store';
@@ -423,6 +425,44 @@ export function TriggerView() {
 					displayName: i18n.baseText('nodeCreator.triggerHelperPanel.chatTriggerDisplayName'),
 					description: i18n.baseText('nodeCreator.triggerHelperPanel.chatTriggerDescription'),
 					icon: 'fa:comments',
+				},
+			},
+			{
+				key: INMO_APP_EVENT_TRIGGER_NODE_TYPE,
+				type: 'node',
+				category: [CORE_NODES_CATEGORY],
+				properties: {
+					group: [],
+					name: INMO_APP_EVENT_TRIGGER_NODE_TYPE,
+					displayName: i18n.baseText(
+						'nodeCreator.triggerHelperPanel.inmoAppEventTriggerDisplayName',
+					),
+					description: i18n.baseText(
+						'nodeCreator.triggerHelperPanel.inmoAppEventTriggerDescription',
+					),
+					iconData: {
+						type: 'file',
+						fileBuffer: '/static/inmoAppEventIcon.svg',
+					},
+				},
+			},
+			{
+				key: INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE,
+				type: 'node',
+				category: [CORE_NODES_CATEGORY],
+				properties: {
+					group: [],
+					name: INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE,
+					displayName: i18n.baseText(
+						'nodeCreator.triggerHelperPanel.inmoSuperAppControlTriggerDisplayName',
+					),
+					description: i18n.baseText(
+						'nodeCreator.triggerHelperPanel.inmoSuperAppControlTriggerDescription',
+					),
+					iconData: {
+						type: 'file',
+						fileBuffer: '/static/inmoSuperAppIcon.svg',
+					},
 				},
 			},
 			{
