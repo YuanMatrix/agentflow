@@ -315,7 +315,6 @@ function clearSelectedCredential(credentialType: string) {
 	emit('credentialSelected', updateInformation);
 }
 
-const restrictedCredentialTypes = ['openAiApi', 'deepSeekApi'];
 const isMember = computed(() => usersStore.currentUser?.role === 'global:member');
 
 function createNewCredential(
