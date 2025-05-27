@@ -1,7 +1,12 @@
 import { Service } from '@n8n/di';
 import type { Response } from 'express';
 import { Logger } from 'n8n-core';
-import { Workflow, CHAT_TRIGGER_NODE_TYPE } from 'n8n-workflow';
+import {
+	Workflow,
+	CHAT_TRIGGER_NODE_TYPE,
+	INMO_APP_EVENT_TRIGGER_NODE_TYPE,
+	INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE,
+} from 'n8n-workflow';
 import type { INode, IWebhookData, IHttpRequestMethods } from 'n8n-workflow';
 
 import { WorkflowRepository } from '@/databases/repositories/workflow.repository';
@@ -48,7 +53,10 @@ export class LiveWebhooks implements IWebhookManager {
 		});
 
 		const isChatWebhookNode = (type: string, webhookId?: string) =>
-			type === CHAT_TRIGGER_NODE_TYPE && `${webhookId}/chat` === path;
+			(type === CHAT_TRIGGER_NODE_TYPE ||
+				type === INMO_APP_EVENT_TRIGGER_NODE_TYPE ||
+				type === INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE) &&
+			`${webhookId}/chat` === path;
 
 		const nodes = workflowData?.nodes;
 		const webhookNode = nodes?.find(
