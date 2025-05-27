@@ -40,8 +40,6 @@ export const FORM_NODE_TYPE = 'n8n-nodes-base.form';
 export const FORM_TRIGGER_NODE_TYPE = 'n8n-nodes-base.formTrigger';
 export const CHAT_TRIGGER_NODE_TYPE = '@n8n/n8n-nodes-langchain.chatTrigger';
 export const INMO_APP_EVENT_TRIGGER_NODE_TYPE = '@n8n/n8n-nodes-langchain.inmoAppEventTrigger';
-export const INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE =
-	'@n8n/n8n-nodes-langchain.inmoSuperAppControlTrigger';
 export const WAIT_NODE_TYPE = 'n8n-nodes-base.wait';
 
 export const STARTING_NODE_TYPES = [

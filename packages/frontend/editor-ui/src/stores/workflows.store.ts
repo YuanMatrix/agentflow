@@ -2,7 +2,6 @@ import {
 	AI_NODES_PACKAGE_NAME,
 	CHAT_TRIGGER_NODE_TYPE,
 	INMO_APP_EVENT_TRIGGER_NODE_TYPE,
-	INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE,
 	DEFAULT_NEW_WORKFLOW_NAME,
 	DEFAULT_WORKFLOW_PAGE_SIZE,
 	DUPLICATE_POSTFFIX,
@@ -1221,9 +1220,7 @@ export const useWorkflowsStore = defineStore(STORES.WORKFLOWS, () => {
 
 		// If chat trigger node is removed, close chat
 		if (
-			(node.type === CHAT_TRIGGER_NODE_TYPE ||
-				node.type === INMO_APP_EVENT_TRIGGER_NODE_TYPE ||
-				node.type === INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE) &&
+			(node.type === CHAT_TRIGGER_NODE_TYPE || node.type === INMO_APP_EVENT_TRIGGER_NODE_TYPE) &&
 			!settingsStore.isNewLogsEnabled
 		) {
 			toggleLogsPanelOpen(false);
@@ -1674,8 +1671,7 @@ export const useWorkflowsStore = defineStore(STORES.WORKFLOWS, () => {
 
 			return (
 				parentNodeType === CHAT_TRIGGER_NODE_TYPE ||
-				parentNodeType === INMO_APP_EVENT_TRIGGER_NODE_TYPE ||
-				parentNodeType === INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE
+				parentNodeType === INMO_APP_EVENT_TRIGGER_NODE_TYPE
 			);
 		});
 

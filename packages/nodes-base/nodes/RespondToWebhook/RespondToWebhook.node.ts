@@ -19,7 +19,6 @@ import {
 	FORM_TRIGGER_NODE_TYPE,
 	CHAT_TRIGGER_NODE_TYPE,
 	INMO_APP_EVENT_TRIGGER_NODE_TYPE,
-	INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE,
 	WAIT_NODE_TYPE,
 } from 'n8n-workflow';
 import type { Readable } from 'stream';
@@ -319,7 +318,6 @@ export class RespondToWebhook implements INodeType {
 			CHAT_TRIGGER_NODE_TYPE,
 			WAIT_NODE_TYPE,
 			INMO_APP_EVENT_TRIGGER_NODE_TYPE,
-			INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE,
 		];
 
 		try {

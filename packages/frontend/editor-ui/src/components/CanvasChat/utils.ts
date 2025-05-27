@@ -2,7 +2,6 @@ import {
 	CHAT_TRIGGER_NODE_TYPE,
 	MANUAL_CHAT_TRIGGER_NODE_TYPE,
 	INMO_APP_EVENT_TRIGGER_NODE_TYPE,
-	INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE,
 } from '@/constants';
 import { type IExecutionResponse, type INodeUi, type IWorkflowDb } from '@/Interface';
 import { type ChatMessage } from '@n8n/chat/types';
@@ -15,7 +14,6 @@ export function isChatNode(node: INodeUi) {
 		CHAT_TRIGGER_NODE_TYPE,
 		MANUAL_CHAT_TRIGGER_NODE_TYPE,
 		INMO_APP_EVENT_TRIGGER_NODE_TYPE,
-		INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE,
 	].includes(node.type);
 }
 

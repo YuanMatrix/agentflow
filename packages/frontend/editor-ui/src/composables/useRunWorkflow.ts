@@ -25,7 +25,6 @@ import { useNodeHelpers } from '@/composables/useNodeHelpers';
 import {
 	CHAT_TRIGGER_NODE_TYPE,
 	INMO_APP_EVENT_TRIGGER_NODE_TYPE,
-	INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE,
 	IN_PROGRESS_EXECUTION_ID,
 	SINGLE_WEBHOOK_TRIGGERS,
 } from '@/constants';
@@ -47,11 +46,7 @@ import { usePushConnectionStore } from '@/stores/pushConnection.store';
 import { useNodeDirtiness } from '@/composables/useNodeDirtiness';
 
 const isChatTriggerNode = (node: INode) => {
-	return [
-		CHAT_TRIGGER_NODE_TYPE,
-		INMO_APP_EVENT_TRIGGER_NODE_TYPE,
-		INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE,
-	].includes(node.type);
+	return [CHAT_TRIGGER_NODE_TYPE, INMO_APP_EVENT_TRIGGER_NODE_TYPE].includes(node.type);
 };
 
 export function useRunWorkflow(useRunWorkflowOpts: { router: ReturnType<typeof useRouter> }) {
@@ -185,8 +180,7 @@ export function useRunWorkflow(useRunWorkflowOpts: { router: ReturnType<typeof u
 				options.destinationNode &&
 				(workflowsStore.checkIfNodeHasChatParent(options.destinationNode) ||
 					destinationNodeType === CHAT_TRIGGER_NODE_TYPE ||
-					destinationNodeType === INMO_APP_EVENT_TRIGGER_NODE_TYPE ||
-					destinationNodeType === INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE) &&
+					destinationNodeType === INMO_APP_EVENT_TRIGGER_NODE_TYPE) &&
 				options.source !== 'RunData.ManualChatMessage'
 			) {
 				const startNode = workflow.getStartNode(options.destinationNode);

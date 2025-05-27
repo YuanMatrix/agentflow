@@ -8,7 +8,6 @@ import {
 	CHAT_TRIGGER_NODE_TYPE,
 	WEBHOOK_NODE_TYPE,
 	INMO_APP_EVENT_TRIGGER_NODE_TYPE,
-	INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE,
 } from '../constants';
 import { useRootStore } from '@/stores/root.store';
 import { useWorkflowsStore } from '@/stores/workflows.store';
@@ -56,9 +55,7 @@ const currentTab = ref<ChatEmbedModalTabValue>('cdn');
 const isChatTriggerNode = computed(() => {
 	return workflowsStore.workflow.nodes.some(
 		(node) =>
-			node.type === CHAT_TRIGGER_NODE_TYPE ||
-			node.type === INMO_APP_EVENT_TRIGGER_NODE_TYPE ||
-			node.type === INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE,
+			node.type === CHAT_TRIGGER_NODE_TYPE || node.type === INMO_APP_EVENT_TRIGGER_NODE_TYPE,
 	);
 });
 const webhookNode = computed(() => {
@@ -66,7 +63,6 @@ const webhookNode = computed(() => {
 		CHAT_TRIGGER_NODE_TYPE,
 		WEBHOOK_NODE_TYPE,
 		INMO_APP_EVENT_TRIGGER_NODE_TYPE,
-		INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE,
 	]) {
 		const node = workflowsStore.workflow.nodes.find((node) => node.type === type);
 		if (node) {
@@ -91,8 +87,7 @@ const webhookUrl = computed(() => {
 	}`;
 
 	return webhookNode.value?.type === CHAT_TRIGGER_NODE_TYPE ||
-		webhookNode.value?.type === INMO_APP_EVENT_TRIGGER_NODE_TYPE ||
-		webhookNode.value?.type === INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE
+		webhookNode.value?.type === INMO_APP_EVENT_TRIGGER_NODE_TYPE
 		? `${url}/chat`
 		: url;
 });

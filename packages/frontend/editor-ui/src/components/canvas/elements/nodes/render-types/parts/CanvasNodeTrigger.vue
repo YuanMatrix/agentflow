@@ -3,11 +3,7 @@ import { LOGS_PANEL_STATE } from '@/components/CanvasChat/types/logs';
 import { useCanvasOperations } from '@/composables/useCanvasOperations';
 import { useI18n } from '@/composables/useI18n';
 import { useRunWorkflow } from '@/composables/useRunWorkflow';
-import {
-	CHAT_TRIGGER_NODE_TYPE,
-	INMO_APP_EVENT_TRIGGER_NODE_TYPE,
-	INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE,
-} from '@/constants';
+import { CHAT_TRIGGER_NODE_TYPE, INMO_APP_EVENT_TRIGGER_NODE_TYPE } from '@/constants';
 import { useUIStore } from '@/stores/ui.store';
 import { useWorkflowsStore } from '@/stores/workflows.store';
 import { computed, useCssModule } from 'vue';
@@ -48,10 +44,7 @@ const isChatOpen = computed(() => workflowsStore.logsPanelState !== LOGS_PANEL_S
 const isExecuting = computed(() => uiStore.isActionActive.workflowRunning);
 const testId = computed(() => `execute-workflow-button-${name}`);
 const isChatTriggerNode = computed(
-	() =>
-		type === CHAT_TRIGGER_NODE_TYPE ||
-		type === INMO_APP_EVENT_TRIGGER_NODE_TYPE ||
-		type === INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE,
+	() => type === CHAT_TRIGGER_NODE_TYPE || type === INMO_APP_EVENT_TRIGGER_NODE_TYPE,
 );
 </script>
 

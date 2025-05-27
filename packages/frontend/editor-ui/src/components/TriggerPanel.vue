@@ -3,7 +3,6 @@ import { computed, ref } from 'vue';
 import {
 	CHAT_TRIGGER_NODE_TYPE,
 	INMO_APP_EVENT_TRIGGER_NODE_TYPE,
-	INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE,
 	VIEWS,
 	WEBHOOK_NODE_TYPE,
 	WORKFLOW_SETTINGS_MODAL_KEY,
@@ -110,8 +109,7 @@ const displayChatButton = computed(() => {
 	return Boolean(
 		node.value &&
 			(node.value.type === CHAT_TRIGGER_NODE_TYPE ||
-				node.value.type === INMO_APP_EVENT_TRIGGER_NODE_TYPE ||
-				node.value.type === INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE) &&
+				node.value.type === INMO_APP_EVENT_TRIGGER_NODE_TYPE) &&
 			node.value.parameters.mode !== 'webhook',
 	);
 });
@@ -188,9 +186,7 @@ const listeningTitle = computed(() => {
 
 const listeningHint = computed(() => {
 	switch (nodeType.value?.name) {
-		case CHAT_TRIGGER_NODE_TYPE ||
-			INMO_APP_EVENT_TRIGGER_NODE_TYPE ||
-			INMO_SUPER_APP_CONTROL_TRIGGER_NODE_TYPE:
+		case CHAT_TRIGGER_NODE_TYPE || INMO_APP_EVENT_TRIGGER_NODE_TYPE:
 			return i18n.baseText('ndv.trigger.webhookBasedNode.chatTrigger.serviceHint');
 		case FORM_TRIGGER_NODE_TYPE:
 			return i18n.baseText('ndv.trigger.webhookBasedNode.formTrigger.serviceHint');
