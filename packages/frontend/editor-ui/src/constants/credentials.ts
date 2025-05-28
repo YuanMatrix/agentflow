@@ -6,4 +6,4 @@ export const SHARED_CREDENTIAL_TYPES = [
 	'googlePalmApi',
 ] as const;
 
-export type CredentialType = typeof SHARED_CREDENTIAL_TYPES[number];
+export type CredentialType = (typeof SHARED_CREDENTIAL_TYPES)[number];
