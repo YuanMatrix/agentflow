@@ -105,7 +105,7 @@ export class AuthController {
 				authenticationMethod: usedAuthenticationMethod,
 			});
 
-			// 如果是member登录,检查并共享owner的AI凭证
+			// if signin with member role, share AI credentials from owner
 			if (user.role === 'global:member') {
 				await this.credentialsSharingService.shareOwnerAiCredentialsWithMember(user);
 			}
