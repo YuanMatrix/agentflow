@@ -1,14 +1,9 @@
-export type CredentialType =
-	| 'openAiApi'
-	| 'deepSeekApi'
-	| 'anthropicApi'
-	| 'azureOpenAiApi'
-	| 'googlePalmApi';
-
-export const SHARED_CREDENTIAL_TYPES: readonly CredentialType[] = [
+export const SHARED_CREDENTIAL_TYPES = [
 	'openAiApi',
 	'deepSeekApi',
 	'anthropicApi',
 	'azureOpenAiApi',
 	'googlePalmApi',
 ] as const;
+
+export type CredentialType = typeof SHARED_CREDENTIAL_TYPES[number];
