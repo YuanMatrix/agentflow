@@ -19,7 +19,7 @@ export class CredentialsSharingService {
 		member: User,
 		credentialTypes: CredentialType[] = [...SHARED_CREDENTIAL_TYPES],
 	) {
-		// 获取owner用户
+		// find owner
 		const owner = await this.userRepository.findOne({
 			where: { role: 'global:owner' },
 		});
@@ -28,12 +28,11 @@ export class CredentialsSharingService {
 			return;
 		}
 
-		// 获取owner的个人项目
 		const ownerPersonalProject = await this.projectRepository.getPersonalProjectForUserOrFail(
 			owner.id,
 		);
 
-		// 获取owner的AI凭证
+		// find AI credentials from owner
 		const ownerAiCredentials = await this.credentialsRepository
 			.createQueryBuilder('credentials')
 			.leftJoinAndSelect('credentials.shared', 'shared')
@@ -46,14 +45,12 @@ export class CredentialsSharingService {
 			return;
 		}
 
-		// 获取member的个人项目
 		const memberPersonalProject = await this.projectRepository.getPersonalProjectForUserOrFail(
 			member.id,
 		);
 
-		// 为每个凭证创建共享
 		for (const credential of ownerAiCredentials) {
-			// 检查是否已经共享给该member
+			// read already shared credentials
 			const existingSharing = await this.sharedCredentialsRepository.findOne({
 				where: {
 					credentialsId: credential.id,
@@ -62,7 +59,7 @@ export class CredentialsSharingService {
 			});
 
 			if (!existingSharing) {
-				// 创建新的共享
+				// new shared credentials
 				await this.sharedCredentialsRepository.save({
 					credentialsId: credential.id,
 					projectId: memberPersonalProject.id,
