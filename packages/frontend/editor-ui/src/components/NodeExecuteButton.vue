@@ -6,6 +6,7 @@ import {
 	MODAL_CONFIRM,
 	FORM_TRIGGER_NODE_TYPE,
 	CHAT_TRIGGER_NODE_TYPE,
+	INMO_APP_EVENT_TRIGGER_NODE_TYPE,
 } from '@/constants';
 import {
 	AI_TRANSFORM_CODE_GENERATED_FOR_PROMPT,
@@ -103,7 +104,9 @@ const isManualTriggerNode = computed(() =>
 );
 
 const isChatNode = computed(() =>
-	nodeType.value ? nodeType.value.name === CHAT_TRIGGER_NODE_TYPE : false,
+	nodeType.value
+		? [CHAT_TRIGGER_NODE_TYPE, INMO_APP_EVENT_TRIGGER_NODE_TYPE].includes(nodeType.value.name)
+		: false,
 );
 
 const isChatChild = computed(() => workflowsStore.checkIfNodeHasChatParent(props.nodeName));
