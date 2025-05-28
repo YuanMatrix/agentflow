@@ -1,6 +1,7 @@
 import {
 	AI_NODES_PACKAGE_NAME,
 	CHAT_TRIGGER_NODE_TYPE,
+	INMO_APP_EVENT_TRIGGER_NODE_TYPE,
 	DEFAULT_NEW_WORKFLOW_NAME,
 	DEFAULT_WORKFLOW_PAGE_SIZE,
 	DUPLICATE_POSTFFIX,
@@ -1218,7 +1219,10 @@ export const useWorkflowsStore = defineStore(STORES.WORKFLOWS, () => {
 		nodeMetadata.value = remainingNodeMetadata;
 
 		// If chat trigger node is removed, close chat
-		if (node.type === CHAT_TRIGGER_NODE_TYPE && !settingsStore.isNewLogsEnabled) {
+		if (
+			(node.type === CHAT_TRIGGER_NODE_TYPE || node.type === INMO_APP_EVENT_TRIGGER_NODE_TYPE) &&
+			!settingsStore.isNewLogsEnabled
+		) {
 			toggleLogsPanelOpen(false);
 		}
 
@@ -1665,7 +1669,10 @@ export const useWorkflowsStore = defineStore(STORES.WORKFLOWS, () => {
 		const matchedChatNode = parents.find((parent) => {
 			const parentNodeType = getNodeByName(parent)?.type;
 
-			return parentNodeType === CHAT_TRIGGER_NODE_TYPE;
+			return (
+				parentNodeType === CHAT_TRIGGER_NODE_TYPE ||
+				parentNodeType === INMO_APP_EVENT_TRIGGER_NODE_TYPE
+			);
 		});
 
 		return !!matchedChatNode;
