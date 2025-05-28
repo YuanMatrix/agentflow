@@ -24,7 +24,7 @@ import { useBugReporting } from '@/composables/useBugReporting';
 import { usePageRedirectionHelper } from '@/composables/usePageRedirectionHelper';
 
 import { useGlobalEntityCreation } from '@/composables/useGlobalEntityCreation';
-import { N8nNavigationDropdown, N8nTooltip, N8nLink, N8nIconButton } from '@n8n/design-system';
+import { N8nNavigationDropdown, N8nTooltip, N8nLink } from '@n8n/design-system';
 import { onClickOutside, type VueInstance } from '@vueuse/core';
 import Logo from './Logo/Logo.vue';
 import N8nLogoSection from './N8nLogoSection.vue';
@@ -362,7 +362,21 @@ onClickOutside(createBtn as Ref<VueInstance>, () => {
 					/>
 				</N8nTooltip>
 			</Logo>
-			<N8nLogoSection :collapsed="isCollapsed" :menu="menu" @select="handleMenuSelect" />
+			<N8nLogoSection
+				:collapsed="isCollapsed"
+				:menu="menu"
+				:create-workflows-append-slot-name="createWorkflowsAppendSlotName"
+				:create-credentials-append-slot-name="createCredentialsAppendSlotName"
+				:create-project-append-slot-name="createProjectAppendSlotName"
+				:projects-limit-reached-message="projectsLimitReachedMessage"
+				:upgrade-label="upgradeLabel"
+				:has-permission-to-create-projects="hasPermissionToCreateProjects"
+				:source-control-branch-read-only="sourceControlStore.preferences.branchReadOnly"
+				:i18n="i18n"
+				:release-channel="settingsStore.settings.releaseChannel"
+				ref="createBtn"
+				@select="handleMenuSelect"
+			/>
 		</div>
 		<N8nMenu :items="mainMenuItems" :collapsed="isCollapsed" @select="handleSelect">
 			<template #header>
