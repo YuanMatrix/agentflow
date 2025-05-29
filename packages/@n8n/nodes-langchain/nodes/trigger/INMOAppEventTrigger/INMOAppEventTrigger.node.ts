@@ -22,15 +22,14 @@ const allowFileUploadsOption: INodeProperties = {
 	displayName: 'Allow File Uploads',
 	name: 'allowFileUploads',
 	type: 'boolean',
-	default: false,
+	default: true,
 	description: 'Whether to allow file uploads in the chat',
 };
 const allowedFileMimeTypeOption: INodeProperties = {
 	displayName: 'Allowed File Mime Types',
 	name: 'allowedFilesMimeTypes',
 	type: 'string',
-	default: '*',
-	placeholder: 'e.g. image/*, text/*, application/pdf',
+	default: 'image/*',
 	description:
 		'Allowed file types for upload. Comma-separated list of <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types" target="_blank">MIME types</a>.',
 };
@@ -115,7 +114,7 @@ export class INMOAppEventTrigger extends Node {
 				displayName: 'Make Chat Publicly Available',
 				name: 'public',
 				type: 'boolean',
-				default: false,
+				default: true,
 				description:
 					'Whether the chat should be publicly available or only accessible through the manual chat interface',
 			},
