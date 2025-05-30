@@ -24,95 +24,59 @@ export class InmoSuperApp implements INodeType {
 		outputs: [NodeConnectionTypes.Main],
 		properties: [
 			{
-				displayName: 'Input Type',
-				name: 'inputType',
-				type: 'options',
-				options: [
-					{
-						name: 'Auto Detect',
-						value: 'auto',
-						description: 'Automatically detect the input type',
-					},
-					{
-						name: 'Image',
-						value: 'image',
-						description: 'Process image files',
-					},
-					{
-						name: 'Video',
-						value: 'video',
-						description: 'Process video files',
-					},
-					{
-						name: 'Audio',
-						value: 'audio',
-						description: 'Process audio files',
-					},
-					{
-						name: 'Text',
-						value: 'text',
-						description: 'Process text content',
-					},
-				],
-				default: 'auto',
-				description: 'The type of input to process',
+				displayName: 'Binary Property Name',
+				name: 'binaryPropertyName',
+				type: 'string',
+				default: 'data0',
+				description: 'Name of the binary property that contains the file',
 			},
 			// Image Options
 			{
 				displayName: 'Show Image',
 				name: 'showImage',
 				type: 'boolean',
-				default: false,
-				displayOptions: {
-					show: {
-						inputType: ['image', 'auto'],
-					},
-				},
+				default: true,
 			},
 			{
-				displayName: 'X',
-				name: 'imageX',
+				displayName: 'Image Position X',
+				name: 'imagePosX',
 				type: 'number',
 				default: 100,
 				displayOptions: {
 					show: {
-						inputType: ['image', 'auto'],
 						showImage: [true],
 					},
 				},
 			},
 			{
-				displayName: 'Y',
-				name: 'imageY',
+				displayName: 'Image Position Y',
+				name: 'imagePosY',
 				type: 'number',
 				default: 100,
 				displayOptions: {
 					show: {
-						inputType: ['image', 'auto'],
 						showImage: [true],
 					},
 				},
 			},
 			{
-				displayName: 'Width',
-				name: 'imageWidth',
+				displayName: 'Image Width',
+				name: 'imageResizeWidth',
 				type: 'number',
 				default: 100,
 				displayOptions: {
 					show: {
-						inputType: ['image', 'auto'],
 						showImage: [true],
 					},
 				},
 			},
 			{
-				displayName: 'Height',
-				name: 'imageHeight',
+				displayName: 'Image Height',
+				name: 'imageResizeHeight',
 				type: 'number',
 				default: 100,
 				displayOptions: {
 					show: {
-						inputType: ['image', 'auto'],
 						showImage: [true],
 					},
 				},
@@ -122,12 +86,7 @@ export class InmoSuperApp implements INodeType {
 				displayName: 'Volume Control',
 				name: 'enableVolumeControl',
 				type: 'boolean',
-				default: false,
-				displayOptions: {
-					show: {
-						inputType: ['video', 'audio', 'auto'],
-					},
-				},
+				default: true,
 			},
 			{
 				displayName: 'Volume',
@@ -140,7 +99,6 @@ export class InmoSuperApp implements INodeType {
 				default: 50,
 				displayOptions: {
 					show: {
-						inputType: ['video', 'audio', 'auto'],
 						enableVolumeControl: [true],
 					},
 				},
@@ -150,12 +108,7 @@ export class InmoSuperApp implements INodeType {
 				displayName: 'Show Text',
 				name: 'showText',
 				type: 'boolean',
-				default: false,
-				displayOptions: {
-					show: {
-						inputType: ['text', 'auto'],
-					},
-				},
+				default: true,
 			},
 			{
 				displayName: 'X',
@@ -164,7 +117,6 @@ export class InmoSuperApp implements INodeType {
 				default: 100,
 				displayOptions: {
 					show: {
-						inputType: ['text', 'auto'],
 						showText: [true],
 					},
 				},
@@ -176,7 +128,6 @@ export class InmoSuperApp implements INodeType {
 				default: 100,
 				displayOptions: {
 					show: {
-						inputType: ['text', 'auto'],
 						showText: [true],
 					},
 				},
@@ -188,7 +139,6 @@ export class InmoSuperApp implements INodeType {
 				default: 100,
 				displayOptions: {
 					show: {
-						inputType: ['text', 'auto'],
 						showText: [true],
 					},
 				},
@@ -200,7 +150,6 @@ export class InmoSuperApp implements INodeType {
 				default: 100,
 				displayOptions: {
 					show: {
-						inputType: ['text', 'auto'],
 						showText: [true],
 					},
 				},
@@ -234,7 +183,6 @@ export class InmoSuperApp implements INodeType {
 				default: 16,
 				displayOptions: {
 					show: {
-						inputType: ['text', 'auto'],
 						showText: [true],
 					},
 				},
@@ -272,20 +220,7 @@ export class InmoSuperApp implements INodeType {
 				default: 'Arial',
 				displayOptions: {
 					show: {
-						inputType: ['text', 'auto'],
 						showText: [true],
-					},
-				},
-			},
-			{
-				displayName: 'Binary Property Name',
-				name: 'binaryPropertyName',
-				type: 'string',
-				default: 'data',
-				description: 'Name of the binary property that contains the file',
-				displayOptions: {
-					hide: {
-						inputType: ['text'],
 					},
 				},
 			},
@@ -295,40 +230,40 @@ export class InmoSuperApp implements INodeType {
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
-		const self = this;
 
 		for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
 			try {
-				const inputType = this.getNodeParameter('inputType', itemIndex) as string;
 				const item = items[itemIndex];
+				const result: INodeExecutionData = {
+					json: { ...item.json },
+					binary: { ...item.binary },
+					pairedItem: { item: itemIndex },
+				};
 
-				// Auto-detect input type
-				let detectedType = inputType;
-				if (inputType === 'auto') {
-					detectedType = await detectInputType(self, item, itemIndex);
+				if (await hasText(item)) {
+					const textResult = await processText(this, item, itemIndex);
+					result.json = { ...result.json, ...textResult.json };
 				}
 
-				// Process based on detected type
-				switch (detectedType) {
-					case 'image':
-						returnData.push(await processImage(self, item, itemIndex));
-						break;
-					case 'video':
-						returnData.push(await processVideo(self, item, itemIndex));
-						break;
-					case 'audio':
-						returnData.push(await processAudio(self, item, itemIndex));
-						break;
-					case 'text':
-						returnData.push(await processText(self, item, itemIndex));
-						break;
-					default:
-						throw new NodeOperationError(
-							this.getNode(),
-							`Unsupported input type: ${detectedType}`,
-							{ itemIndex },
-						);
+				if (await hasImage(item)) {
+					const imageResult = await processImage(this, item, itemIndex);
+					result.json = { ...result.json, ...imageResult.json };
+					result.binary = { ...result.binary, ...imageResult.binary };
 				}
+
+				if (await hasVideo(item)) {
+					const videoResult = await processVideo(this, item, itemIndex);
+					result.json = { ...result.json, ...videoResult.json };
+					result.binary = { ...result.binary, ...videoResult.binary };
+				}
+
+				if (await hasAudio(item)) {
+					const audioResult = await processAudio(this, item, itemIndex);
+					result.json = { ...result.json, ...audioResult.json };
+					result.binary = { ...result.binary, ...audioResult.binary };
+				}
+
+				returnData.push(result);
 			} catch (error) {
 				if (this.continueOnFail()) {
 					returnData.push({
@@ -347,35 +282,78 @@ export class InmoSuperApp implements INodeType {
 	}
 }
 
-async function detectInputType(
-	context: IExecuteFunctions,
-	item: INodeExecutionData,
-	itemIndex: number,
-): Promise<string> {
-	// Check if it's binary data
-	const binaryPropertyName = context.getNodeParameter('binaryPropertyName', itemIndex) as string;
-	if (item.binary?.[binaryPropertyName]) {
-		const mimeType = item.binary[binaryPropertyName].mimeType;
-		if (mimeType.startsWith('image/')) return 'image';
-		if (mimeType.startsWith('video/')) return 'video';
-		if (mimeType.startsWith('audio/')) return 'audio';
+// 辅助函数：检查是否包含文本
+async function hasText(item: INodeExecutionData): Promise<boolean> {
+	const textFields = ['chatInput', 'text', 'content', 'message', 'body', 'description'];
+	const jsonData = item.json as string | IDataObject;
+
+	if (typeof jsonData === 'string' && jsonData.trim() !== '') {
+		return true;
 	}
 
-	// Check if it's text in JSON
-	if (item.json && typeof item.json === 'object') {
-		const textFields = ['text', 'content', 'message', 'body', 'description'];
+	if (typeof jsonData === 'object' && jsonData !== null) {
 		for (const field of textFields) {
-			if (typeof item.json[field] === 'string') {
-				return 'text';
+			const value = jsonData[field];
+			if (typeof value === 'string' && value.trim() !== '') {
+				return true;
 			}
 		}
 	}
+	return false;
+}
 
-	throw new NodeOperationError(
-		context.getNode(),
-		'Could not auto-detect input type. Please specify it manually.',
-		{ itemIndex },
-	);
+// 辅助函数：检查是否包含图片
+async function hasImage(item: INodeExecutionData): Promise<boolean> {
+	if (item.json?.files && Array.isArray(item.json.files)) {
+		const file = item.json.files[0];
+		if (file.fileType === 'image' || file.mimeType?.startsWith('image/')) {
+			return true;
+		}
+	}
+	if (item.binary) {
+		for (const key in item.binary) {
+			if (item.binary[key].mimeType.startsWith('image/')) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+// 辅助函数：检查是否包含视频
+async function hasVideo(item: INodeExecutionData): Promise<boolean> {
+	if (item.json?.files && Array.isArray(item.json.files)) {
+		const file = item.json.files[0];
+		if (file.fileType === 'video' || file.mimeType?.startsWith('video/')) {
+			return true;
+		}
+	}
+	if (item.binary) {
+		for (const key in item.binary) {
+			if (item.binary[key].mimeType.startsWith('video/')) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+// 辅助函数：检查是否包含音频
+async function hasAudio(item: INodeExecutionData): Promise<boolean> {
+	if (item.json?.files && Array.isArray(item.json.files)) {
+		const file = item.json.files[0];
+		if (file.fileType === 'audio' || file.mimeType?.startsWith('audio/')) {
+			return true;
+		}
+	}
+	if (item.binary) {
+		for (const key in item.binary) {
+			if (item.binary[key].mimeType.startsWith('audio/')) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 async function processImage(
@@ -383,29 +361,44 @@ async function processImage(
 	item: INodeExecutionData,
 	itemIndex: number,
 ): Promise<INodeExecutionData> {
-	const binaryPropertyName = context.getNodeParameter('binaryPropertyName', itemIndex) as string;
 	const showImage = context.getNodeParameter('showImage', itemIndex) as boolean;
+	let binaryData;
+	let buffer;
 
-	if (!item.binary?.[binaryPropertyName]) {
-		throw new NodeOperationError(
-			context.getNode(),
-			`No binary data found in property "${binaryPropertyName}"`,
-			{ itemIndex },
-		);
+	if (item.json?.files && Array.isArray(item.json.files)) {
+		const file = item.json.files[0];
+		if (
+			(file.fileType === 'image' || file.mimeType?.startsWith('image/')) &&
+			item.binary?.['files_0']
+		) {
+			binaryData = item.binary['files_0'];
+			buffer = await context.helpers.getBinaryDataBuffer(itemIndex, 'files_0');
+		}
 	}
 
-	const binaryData = item.binary[binaryPropertyName];
-	const buffer = await context.helpers.getBinaryDataBuffer(itemIndex, binaryPropertyName);
+	if (!binaryData) {
+		const binaryPropertyName = context.getNodeParameter('binaryPropertyName', itemIndex) as string;
+		if (!item.binary?.[binaryPropertyName]) {
+			throw new NodeOperationError(
+				context.getNode(),
+				`No binary data found in property "${binaryPropertyName}"`,
+				{ itemIndex },
+			);
+		}
+		binaryData = item.binary[binaryPropertyName];
+		buffer = await context.helpers.getBinaryDataBuffer(itemIndex, binaryPropertyName);
+	}
 
 	try {
-		const sharp = await import('sharp');
-		let sharpInstance = sharp(buffer) as Sharp;
+		// eslint-disable-next-line @typescript-eslint/no-var-requires
+		const sharp = require('sharp');
+		let sharpInstance = sharp(buffer);
 
 		if (showImage) {
-			const x = context.getNodeParameter('imageX', itemIndex) as number;
-			const y = context.getNodeParameter('imageY', itemIndex) as number;
-			const width = context.getNodeParameter('imageWidth', itemIndex) as number;
-			const height = context.getNodeParameter('imageHeight', itemIndex) as number;
+			const imageX = context.getNodeParameter('imagePosX', itemIndex) as number;
+			const imageY = context.getNodeParameter('imagePosY', itemIndex) as number;
+			const width = context.getNodeParameter('imageResizeWidth', itemIndex) as number;
+			const height = context.getNodeParameter('imageResizeHeight', itemIndex) as number;
 
 			sharpInstance = sharpInstance.resize(width, height);
 		}
@@ -424,25 +417,25 @@ async function processImage(
 				processingType: 'image',
 				showImage,
 				...(showImage && {
-					position: {
-						x: context.getNodeParameter('imageX', itemIndex) as number,
-						y: context.getNodeParameter('imageY', itemIndex) as number,
+					imagePosition: {
+						x: context.getNodeParameter('imagePosX', itemIndex) as number,
+						y: context.getNodeParameter('imagePosY', itemIndex) as number,
 					},
-					size: {
-						width: context.getNodeParameter('imageWidth', itemIndex) as number,
-						height: context.getNodeParameter('imageHeight', itemIndex) as number,
+					imageSize: {
+						width: context.getNodeParameter('imageResizeWidth', itemIndex) as number,
+						height: context.getNodeParameter('imageResizeHeight', itemIndex) as number,
 					},
 				}),
 			},
 			binary: {
-				[binaryPropertyName]: newBinaryData,
+				[binaryData.fileName]: newBinaryData,
 			},
 			pairedItem: { item: itemIndex },
 		};
 	} catch (error) {
 		throw new NodeOperationError(
 			context.getNode(),
-			'Image processing failed. Make sure the "sharp" package is installed.',
+			`Image processing failed: ${(error as Error).message}`,
 			{ itemIndex },
 		);
 	}
@@ -517,26 +510,16 @@ async function processText(
 ): Promise<INodeExecutionData> {
 	const showText = context.getNodeParameter('showText', itemIndex) as boolean;
 
-	// Find text in item
 	let text = '';
-	const textFields = ['output', 'text', 'content', 'message', 'body', 'description'];
+	const textFields = ['chatInput', 'text', 'content', 'message', 'body', 'description'];
 
 	if (typeof item.json === 'string') {
 		text = item.json;
 	} else if (typeof item.json === 'object' && item.json !== null) {
 		for (const field of textFields) {
-			if (typeof item.json[field] === 'string') {
+			if (typeof item.json[field] === 'string' && item.json[field].trim() !== '') {
 				text = item.json[field] as string;
 				break;
-			} else if (typeof item.json[field] === 'object' && item.json[field] !== null) {
-				const nestedObj = item.json[field] as IDataObject;
-				for (const nestedField of textFields) {
-					if (typeof nestedObj[nestedField] === 'string') {
-						text = nestedObj[nestedField] as string;
-						break;
-					}
-				}
-				if (text) break;
 			}
 		}
 
