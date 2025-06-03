@@ -16,12 +16,14 @@ import {
 	insertOptionsAndValues,
 } from './utils';
 
-let defaulLanguage: LanguageOption =
-	(localStorage.getItem('n8n-language') as LanguageOption) ?? 'English';
+let defaultLanguage: LanguageOption =
+	(localStorage.getItem('n8n-language') as LanguageOption) ??
+	(import.meta.env.VITE_N8N_DEFAULT_LANGUAGE as LanguageOption) ??
+	'Chinese';
 
 export const i18nInstance = createI18n({
-	locale: defaulLanguage == 'English' ? 'en' : 'zh',
-	fallbackLocale: defaulLanguage == 'English' ? 'en' : 'zh',
+	locale: defaultLanguage == 'English' ? 'en' : 'zh',
+	fallbackLocale: defaultLanguage == 'English' ? 'en' : 'zh',
 	messages: {
 		en: englishBaseText,
 		zh: chineseBaseText,
