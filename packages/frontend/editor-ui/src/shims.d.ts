@@ -14,6 +14,7 @@ declare global {
 			PROD: boolean;
 			NODE_ENV: 'development' | 'production';
 			VUE_APP_URL_BASE_API: string;
+			VITE_N8N_DEFAULT_LANGUAGE: string;
 		};
 	}
 

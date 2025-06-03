@@ -17,7 +17,9 @@ import {
 } from './utils';
 
 let defaulLanguage: LanguageOption =
-	(localStorage.getItem('n8n-language') as LanguageOption) ?? 'English';
+	(localStorage.getItem('n8n-language') as LanguageOption) ??
+	(import.meta.env.VITE_N8N_DEFAULT_LANGUAGE as LanguageOption) ??
+	'English';
 
 export const i18nInstance = createI18n({
 	locale: defaulLanguage == 'English' ? 'en' : 'zh',
