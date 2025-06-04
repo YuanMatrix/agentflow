@@ -6,7 +6,6 @@ import type {
 	IDataObject,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
-import type { Sharp } from 'sharp';
 
 export class InmoSuperApp implements INodeType {
 	description: INodeTypeDescription = {
@@ -16,20 +15,13 @@ export class InmoSuperApp implements INodeType {
 		group: ['transform'],
 		version: 1,
 		description:
-			'Process different types of media - resize images, adjust text font size, adjust audio/video volume',
+			'Process different types of media - resize images, adjust text font size, adjust audio/video volume. Supports both filesystem and memory binary data modes.',
 		defaults: {
 			name: 'Inmo Super App',
 		},
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
 		properties: [
-			{
-				displayName: 'Binary Property Name',
-				name: 'binaryPropertyName',
-				type: 'string',
-				default: 'data0',
-				description: 'Name of the binary property that contains the file',
-			},
 			// Image Options
 			{
 				displayName: 'Show Image',
@@ -91,17 +83,22 @@ export class InmoSuperApp implements INodeType {
 			{
 				displayName: 'Volume',
 				name: 'volume',
-				type: 'number',
-				typeOptions: {
-					minValue: 0,
-					maxValue: 100,
-				},
+				type: 'slider',
 				default: 50,
+				required: true,
 				displayOptions: {
 					show: {
 						enableVolumeControl: [true],
 					},
 				},
+				typeOptions: {
+					minValue: 0,
+					maxValue: 100,
+					showInput: true,
+					showInputControls: true,
+					showTooltip: true,
+				},
+				description: 'Volume Control (0-100)',
 			},
 			// Text Options
 			{
@@ -240,27 +237,74 @@ export class InmoSuperApp implements INodeType {
 					pairedItem: { item: itemIndex },
 				};
 
+				let processed = false;
+
 				if (await hasText(item)) {
-					const textResult = await processText(this, item, itemIndex);
-					result.json = { ...result.json, ...textResult.json };
+					try {
+						const textResult = await processText(this, item, itemIndex);
+						result.json = { ...result.json, ...textResult.json };
+						processed = true;
+					} catch (error) {
+						throw new NodeOperationError(
+							this.getNode(),
+							`Text processing failed: ${(error as Error).message}`,
+							{ itemIndex },
+						);
+					}
 				}
 
 				if (await hasImage(item)) {
-					const imageResult = await processImage(this, item, itemIndex);
-					result.json = { ...result.json, ...imageResult.json };
-					result.binary = { ...result.binary, ...imageResult.binary };
+					try {
+						const imageResult = await processImage(this, item, itemIndex);
+						result.json = { ...result.json, ...imageResult.json };
+						result.binary = { ...result.binary, ...imageResult.binary };
+						processed = true;
+					} catch (error) {
+						throw new NodeOperationError(
+							this.getNode(),
+							`Image processing failed: ${(error as Error).message}`,
+							{ itemIndex },
+						);
+					}
 				}
 
 				if (await hasVideo(item)) {
-					const videoResult = await processVideo(this, item, itemIndex);
-					result.json = { ...result.json, ...videoResult.json };
-					result.binary = { ...result.binary, ...videoResult.binary };
+					try {
+						const videoResult = await processVideo(this, item, itemIndex);
+						result.json = { ...result.json, ...videoResult.json };
+						result.binary = { ...result.binary, ...videoResult.binary };
+						processed = true;
+					} catch (error) {
+						throw new NodeOperationError(
+							this.getNode(),
+							`Video processing failed: ${(error as Error).message}`,
+							{ itemIndex },
+						);
+					}
 				}
 
 				if (await hasAudio(item)) {
-					const audioResult = await processAudio(this, item, itemIndex);
-					result.json = { ...result.json, ...audioResult.json };
-					result.binary = { ...result.binary, ...audioResult.binary };
+					try {
+						const audioResult = await processAudio(this, item, itemIndex);
+						result.json = { ...result.json, ...audioResult.json };
+						result.binary = { ...result.binary, ...audioResult.binary };
+						processed = true;
+					} catch (error) {
+						throw new NodeOperationError(
+							this.getNode(),
+							`Audio processing failed: ${(error as Error).message}`,
+							{ itemIndex },
+						);
+					}
+				}
+
+				if (!processed) {
+					result.json = {
+						...result.json,
+						processed: false,
+						message: 'No supported media or text content found in this item',
+						availableKeys: item.binary ? Object.keys(item.binary) : [],
+					};
 				}
 
 				returnData.push(result);
@@ -269,6 +313,7 @@ export class InmoSuperApp implements INodeType {
 					returnData.push({
 						json: {
 							error: (error as Error).message,
+							itemIndex,
 						},
 						pairedItem: { item: itemIndex },
 					});
@@ -282,7 +327,6 @@ export class InmoSuperApp implements INodeType {
 	}
 }
 
-// 辅助函数：检查是否包含文本
 async function hasText(item: INodeExecutionData): Promise<boolean> {
 	const textFields = ['chatInput', 'text', 'content', 'message', 'body', 'description'];
 	const jsonData = item.json as string | IDataObject;
@@ -302,14 +346,16 @@ async function hasText(item: INodeExecutionData): Promise<boolean> {
 	return false;
 }
 
-// 辅助函数：检查是否包含图片
 async function hasImage(item: INodeExecutionData): Promise<boolean> {
 	if (item.json?.files && Array.isArray(item.json.files)) {
 		const file = item.json.files[0];
 		if (file.fileType === 'image' || file.mimeType?.startsWith('image/')) {
-			return true;
+			if (item.binary?.['files_0']) {
+				return true;
+			}
 		}
 	}
+
 	if (item.binary) {
 		for (const key in item.binary) {
 			if (item.binary[key].mimeType.startsWith('image/')) {
@@ -320,14 +366,16 @@ async function hasImage(item: INodeExecutionData): Promise<boolean> {
 	return false;
 }
 
-// 辅助函数：检查是否包含视频
 async function hasVideo(item: INodeExecutionData): Promise<boolean> {
 	if (item.json?.files && Array.isArray(item.json.files)) {
 		const file = item.json.files[0];
 		if (file.fileType === 'video' || file.mimeType?.startsWith('video/')) {
-			return true;
+			if (item.binary?.['files_0']) {
+				return true;
+			}
 		}
 	}
+
 	if (item.binary) {
 		for (const key in item.binary) {
 			if (item.binary[key].mimeType.startsWith('video/')) {
@@ -338,14 +386,16 @@ async function hasVideo(item: INodeExecutionData): Promise<boolean> {
 	return false;
 }
 
-// 辅助函数：检查是否包含音频
 async function hasAudio(item: INodeExecutionData): Promise<boolean> {
 	if (item.json?.files && Array.isArray(item.json.files)) {
 		const file = item.json.files[0];
 		if (file.fileType === 'audio' || file.mimeType?.startsWith('audio/')) {
-			return true;
+			if (item.binary?.['files_0']) {
+				return true;
+			}
 		}
 	}
+
 	if (item.binary) {
 		for (const key in item.binary) {
 			if (item.binary[key].mimeType.startsWith('audio/')) {
@@ -362,34 +412,22 @@ async function processImage(
 	itemIndex: number,
 ): Promise<INodeExecutionData> {
 	const showImage = context.getNodeParameter('showImage', itemIndex) as boolean;
-	let binaryData;
-	let buffer;
 
-	if (item.json?.files && Array.isArray(item.json.files)) {
-		const file = item.json.files[0];
-		if (
-			(file.fileType === 'image' || file.mimeType?.startsWith('image/')) &&
-			item.binary?.['files_0']
-		) {
-			binaryData = item.binary['files_0'];
-			buffer = await context.helpers.getBinaryDataBuffer(itemIndex, 'files_0');
-		}
+	const binaryInfo = getBinaryDataInfo(item, 'data', 'image');
+	if (!binaryInfo) {
+		throw new NodeOperationError(
+			context.getNode(),
+			`No image binary data found in property "data" or files`,
+			{ itemIndex },
+		);
 	}
 
-	if (!binaryData) {
-		const binaryPropertyName = context.getNodeParameter('binaryPropertyName', itemIndex) as string;
-		if (!item.binary?.[binaryPropertyName]) {
-			throw new NodeOperationError(
-				context.getNode(),
-				`No binary data found in property "${binaryPropertyName}"`,
-				{ itemIndex },
-			);
-		}
-		binaryData = item.binary[binaryPropertyName];
-		buffer = await context.helpers.getBinaryDataBuffer(itemIndex, binaryPropertyName);
-	}
+	const { binaryData, propertyName } = binaryInfo;
 
 	try {
+		// binary buffer
+		const buffer = await getBinaryBuffer(context, binaryData, itemIndex, propertyName);
+
 		// eslint-disable-next-line @typescript-eslint/no-var-requires
 		const sharp = require('sharp');
 		let sharpInstance = sharp(buffer);
@@ -416,10 +454,12 @@ async function processImage(
 				processed: true,
 				processingType: 'image',
 				showImage,
+				originalSize: buffer.length,
+				processedSize: processedBuffer.length,
 				...(showImage && {
 					imagePosition: {
-						x: context.getNodeParameter('imagePosX', itemIndex) as number,
-						y: context.getNodeParameter('imagePosY', itemIndex) as number,
+						imageX: context.getNodeParameter('imagePosX', itemIndex) as number,
+						imageY: context.getNodeParameter('imagePosY', itemIndex) as number,
 					},
 					imageSize: {
 						width: context.getNodeParameter('imageResizeWidth', itemIndex) as number,
@@ -428,7 +468,7 @@ async function processImage(
 				}),
 			},
 			binary: {
-				[binaryData.fileName]: newBinaryData,
+				data: newBinaryData,
 			},
 			pairedItem: { item: itemIndex },
 		};
@@ -446,16 +486,20 @@ async function processVideo(
 	item: INodeExecutionData,
 	itemIndex: number,
 ): Promise<INodeExecutionData> {
-	const binaryPropertyName = context.getNodeParameter('binaryPropertyName', itemIndex) as string;
 	const enableVolumeControl = context.getNodeParameter('enableVolumeControl', itemIndex) as boolean;
 
-	if (!item.binary?.[binaryPropertyName]) {
+	const binaryInfo = getBinaryDataInfo(item, 'data', 'video');
+	if (!binaryInfo) {
 		throw new NodeOperationError(
 			context.getNode(),
-			`No binary data found in property "${binaryPropertyName}"`,
+			`No video binary data found in property "data" or files`,
 			{ itemIndex },
 		);
 	}
+
+	const { binaryData, propertyName } = binaryInfo;
+
+	const buffer = await getBinaryBuffer(context, binaryData, itemIndex, propertyName);
 
 	return {
 		json: {
@@ -463,6 +507,9 @@ async function processVideo(
 			processed: true,
 			processingType: 'video',
 			enableVolumeControl,
+			binarySize: buffer.length,
+			fileName: binaryData.fileName,
+			mimeType: binaryData.mimeType,
 			...(enableVolumeControl && {
 				volume: context.getNodeParameter('volume', itemIndex) as number,
 			}),
@@ -477,16 +524,20 @@ async function processAudio(
 	item: INodeExecutionData,
 	itemIndex: number,
 ): Promise<INodeExecutionData> {
-	const binaryPropertyName = context.getNodeParameter('binaryPropertyName', itemIndex) as string;
 	const enableVolumeControl = context.getNodeParameter('enableVolumeControl', itemIndex) as boolean;
 
-	if (!item.binary?.[binaryPropertyName]) {
+	const binaryInfo = getBinaryDataInfo(item, 'data', 'audio');
+	if (!binaryInfo) {
 		throw new NodeOperationError(
 			context.getNode(),
-			`No binary data found in property "${binaryPropertyName}"`,
+			`No audio binary data found in property "data" or files`,
 			{ itemIndex },
 		);
 	}
+
+	const { binaryData, propertyName } = binaryInfo;
+
+	const buffer = await getBinaryBuffer(context, binaryData, itemIndex, propertyName);
 
 	return {
 		json: {
@@ -494,6 +545,9 @@ async function processAudio(
 			processed: true,
 			processingType: 'audio',
 			enableVolumeControl,
+			binarySize: buffer.length,
+			fileName: binaryData.fileName,
+			mimeType: binaryData.mimeType,
 			...(enableVolumeControl && {
 				volume: context.getNodeParameter('volume', itemIndex) as number,
 			}),
@@ -562,4 +616,60 @@ async function processText(
 		},
 		pairedItem: { item: itemIndex },
 	};
+}
+
+async function getBinaryBuffer(
+	context: IExecuteFunctions,
+	binaryData: any,
+	itemIndex: number,
+	propertyName: string,
+): Promise<Buffer> {
+	if (binaryData.id) {
+		const binaryStream = await context.helpers.getBinaryStream(binaryData.id);
+		return await context.helpers.binaryToBuffer(binaryStream);
+	} else {
+		return await context.helpers.getBinaryDataBuffer(itemIndex, propertyName);
+	}
+}
+
+function getBinaryDataInfo(
+	item: INodeExecutionData,
+	binaryPropertyName: string,
+	mediaType: 'image' | 'video' | 'audio',
+): { binaryData: any; propertyName: string } | null {
+	if (item.json?.files && Array.isArray(item.json.files)) {
+		const file = item.json.files[0];
+		const isMatchingType =
+			file.fileType === mediaType || file.mimeType?.startsWith(`${mediaType}/`);
+
+		if (isMatchingType && item.binary?.['files_0']) {
+			return {
+				binaryData: item.binary['files_0'],
+				propertyName: 'files_0',
+			};
+		}
+	}
+
+	if (item.binary?.[binaryPropertyName]) {
+		const binaryData = item.binary[binaryPropertyName];
+		if (binaryData.mimeType.startsWith(`${mediaType}/`)) {
+			return {
+				binaryData,
+				propertyName: binaryPropertyName,
+			};
+		}
+	}
+
+	if (item.binary) {
+		for (const key in item.binary) {
+			if (item.binary[key].mimeType.startsWith(`${mediaType}/`)) {
+				return {
+					binaryData: item.binary[key],
+					propertyName: key,
+				};
+			}
+		}
+	}
+
+	return null;
 }
