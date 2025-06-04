@@ -15,7 +15,7 @@ export class InmoSuperApp implements INodeType {
 		group: ['transform'],
 		version: 1,
 		description:
-			'Process different types of media - resize images, adjust text font size, adjust audio/video volume. Supports both filesystem and memory binary data modes.',
+			'Process different types of media - resize images, adjust text font size, adjust audio/video volume. The boolean options (Show Text, Show Image, Volume Control) are automatically enabled based on detected content types in the input data, overriding manual settings.',
 		defaults: {
 			name: 'Inmo Super App',
 		},
@@ -28,6 +28,8 @@ export class InmoSuperApp implements INodeType {
 				name: 'showImage',
 				type: 'boolean',
 				default: true,
+				description:
+					'This option is automatically set to true when image content is detected in the input data. Manual setting is overridden during execution.',
 			},
 			{
 				displayName: 'Image Position X',
@@ -79,6 +81,8 @@ export class InmoSuperApp implements INodeType {
 				name: 'enableVolumeControl',
 				type: 'boolean',
 				default: true,
+				description:
+					'This option is automatically set to true when audio or video content is detected in the input data. Manual setting is overridden during execution.',
 			},
 			{
 				displayName: 'Volume',
@@ -106,6 +110,8 @@ export class InmoSuperApp implements INodeType {
 				name: 'showText',
 				type: 'boolean',
 				default: true,
+				description:
+					'This option is automatically set to true when text content is detected in the input data. Manual setting is overridden during execution.',
 			},
 			{
 				displayName: 'X',
@@ -239,9 +245,36 @@ export class InmoSuperApp implements INodeType {
 
 				let processed = false;
 
-				if (await hasText(item)) {
+				// Dynamically determine what content types are available
+				const hasTextContent = await hasText(item);
+				const hasImageContent = await hasImage(item);
+				const hasVideoContent = await hasVideo(item);
+				const hasAudioContent = await hasAudio(item);
+
+				// Set boolean flags based on actual content availability - these override the node parameters
+				const showText = hasTextContent;
+				const showImage = hasImageContent;
+				const enableVolumeControl = hasVideoContent || hasAudioContent;
+
+				// Add content detection results to output for transparency
+				result.json = {
+					...result.json,
+					contentDetection: {
+						hasText: hasTextContent,
+						hasImage: hasImageContent,
+						hasVideo: hasVideoContent,
+						hasAudio: hasAudioContent,
+					},
+					dynamicSettings: {
+						showText,
+						showImage,
+						enableVolumeControl,
+					},
+				};
+
+				if (hasTextContent) {
 					try {
-						const textResult = await processText(this, item, itemIndex);
+						const textResult = await processText(this, item, itemIndex, showText);
 						result.json = { ...result.json, ...textResult.json };
 						processed = true;
 					} catch (error) {
@@ -253,9 +286,9 @@ export class InmoSuperApp implements INodeType {
 					}
 				}
 
-				if (await hasImage(item)) {
+				if (hasImageContent) {
 					try {
-						const imageResult = await processImage(this, item, itemIndex);
+						const imageResult = await processImage(this, item, itemIndex, showImage);
 						result.json = { ...result.json, ...imageResult.json };
 						result.binary = { ...result.binary, ...imageResult.binary };
 						processed = true;
@@ -268,9 +301,9 @@ export class InmoSuperApp implements INodeType {
 					}
 				}
 
-				if (await hasVideo(item)) {
+				if (hasVideoContent) {
 					try {
-						const videoResult = await processVideo(this, item, itemIndex);
+						const videoResult = await processVideo(this, item, itemIndex, enableVolumeControl);
 						result.json = { ...result.json, ...videoResult.json };
 						result.binary = { ...result.binary, ...videoResult.binary };
 						processed = true;
@@ -283,9 +316,9 @@ export class InmoSuperApp implements INodeType {
 					}
 				}
 
-				if (await hasAudio(item)) {
+				if (hasAudioContent) {
 					try {
-						const audioResult = await processAudio(this, item, itemIndex);
+						const audioResult = await processAudio(this, item, itemIndex, enableVolumeControl);
 						result.json = { ...result.json, ...audioResult.json };
 						result.binary = { ...result.binary, ...audioResult.binary };
 						processed = true;
@@ -307,6 +340,14 @@ export class InmoSuperApp implements INodeType {
 					};
 				}
 
+				// Always include the final boolean states in the main result
+				result.json = {
+					...result.json,
+					showText,
+					showImage,
+					enableVolumeControl,
+				};
+
 				returnData.push(result);
 			} catch (error) {
 				if (this.continueOnFail()) {
@@ -314,6 +355,9 @@ export class InmoSuperApp implements INodeType {
 						json: {
 							error: (error as Error).message,
 							itemIndex,
+							showText: false,
+							showImage: false,
+							enableVolumeControl: false,
 						},
 						pairedItem: { item: itemIndex },
 					});
@@ -410,9 +454,8 @@ async function processImage(
 	context: IExecuteFunctions,
 	item: INodeExecutionData,
 	itemIndex: number,
+	showImage: boolean,
 ): Promise<INodeExecutionData> {
-	const showImage = context.getNodeParameter('showImage', itemIndex) as boolean;
-
 	const binaryInfo = getBinaryDataInfo(item, 'data', 'image');
 	if (!binaryInfo) {
 		throw new NodeOperationError(
@@ -433,8 +476,8 @@ async function processImage(
 		let sharpInstance = sharp(buffer);
 
 		if (showImage) {
-			const imageX = context.getNodeParameter('imagePosX', itemIndex) as number;
-			const imageY = context.getNodeParameter('imagePosY', itemIndex) as number;
+			// const imageX = context.getNodeParameter('imagePosX', itemIndex) as number;
+			// const imageY = context.getNodeParameter('imagePosY', itemIndex) as number;
 			const width = context.getNodeParameter('imageResizeWidth', itemIndex) as number;
 			const height = context.getNodeParameter('imageResizeHeight', itemIndex) as number;
 
@@ -485,9 +528,8 @@ async function processVideo(
 	context: IExecuteFunctions,
 	item: INodeExecutionData,
 	itemIndex: number,
+	enableVolumeControl: boolean,
 ): Promise<INodeExecutionData> {
-	const enableVolumeControl = context.getNodeParameter('enableVolumeControl', itemIndex) as boolean;
-
 	const binaryInfo = getBinaryDataInfo(item, 'data', 'video');
 	if (!binaryInfo) {
 		throw new NodeOperationError(
@@ -523,9 +565,8 @@ async function processAudio(
 	context: IExecuteFunctions,
 	item: INodeExecutionData,
 	itemIndex: number,
+	enableVolumeControl: boolean,
 ): Promise<INodeExecutionData> {
-	const enableVolumeControl = context.getNodeParameter('enableVolumeControl', itemIndex) as boolean;
-
 	const binaryInfo = getBinaryDataInfo(item, 'data', 'audio');
 	if (!binaryInfo) {
 		throw new NodeOperationError(
@@ -561,9 +602,8 @@ async function processText(
 	context: IExecuteFunctions,
 	item: INodeExecutionData,
 	itemIndex: number,
+	showText: boolean,
 ): Promise<INodeExecutionData> {
-	const showText = context.getNodeParameter('showText', itemIndex) as boolean;
-
 	let text = '';
 	const textFields = ['chatInput', 'text', 'content', 'message', 'body', 'description'];
 
