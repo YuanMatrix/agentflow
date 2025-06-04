@@ -74,7 +74,7 @@ import { loadLanguage } from '@/plugins/i18n';
 
 let savedTheme: ThemeOption = 'system';
 let savedLanguage: LanguageOption =
-	(localStorage.getItem('n8n-language') as LanguageOption) ?? 'English';
+	(localStorage.getItem('n8n-language') as LanguageOption) ?? 'Chinese';
 
 try {
 	const value = getThemeOverride();
