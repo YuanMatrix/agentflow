@@ -10,6 +10,7 @@ import { useCanvasStore } from '@/stores/canvas.store';
 import { useNodeTypesStore } from '@/stores/nodeTypes.store';
 import { useWorkflowsStore } from '@/stores/workflows.store';
 import { ChatOptionsSymbol, ChatSymbol } from '@n8n/chat/constants';
+import { NodePropertiesSymbol } from '@n8n/chat/composables';
 import { chatEventBus } from '@n8n/chat/event-buses';
 import type { Chat, ChatMessage, ChatOptions } from '@n8n/chat/types';
 import { type INode } from 'n8n-workflow';
@@ -121,6 +122,14 @@ export function useChatState(isReadOnly: boolean, onWindowResize?: () => void): 
 		isDisabled: computed(() => isReadOnly),
 		allowFileUploads,
 		locale,
+	});
+
+	// 提供 node properties
+	provide(NodePropertiesSymbol, {
+		allowFileUploads: computed(() => chatTriggerNode.value?.parameters?.allowFileUploads ?? false),
+		allowedFilesMimeTypes: computed(
+			() => chatTriggerNode.value?.parameters?.allowedFilesMimeTypes ?? '',
+		),
 	});
 
 	const restoredChatMessages = computed(() =>
