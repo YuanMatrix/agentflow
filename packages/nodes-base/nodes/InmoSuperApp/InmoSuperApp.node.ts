@@ -334,7 +334,6 @@ export class InmoSuperApp implements INodeType {
 				if (!processed) {
 					result.json = {
 						...result.json,
-						processed: false,
 						message: 'No supported media or text content found in this item',
 						availableKeys: item.binary ? Object.keys(item.binary) : [],
 					};
@@ -494,8 +493,6 @@ async function processImage(
 		return {
 			json: {
 				...item.json,
-				processed: true,
-				processingType: 'image',
 				showImage,
 				originalSize: buffer.length,
 				processedSize: processedBuffer.length,
@@ -546,8 +543,6 @@ async function processVideo(
 	return {
 		json: {
 			...item.json,
-			processed: true,
-			processingType: 'video',
 			enableVolumeControl,
 			binarySize: buffer.length,
 			fileName: binaryData.fileName,
@@ -583,8 +578,6 @@ async function processAudio(
 	return {
 		json: {
 			...item.json,
-			processed: true,
-			processingType: 'audio',
 			enableVolumeControl,
 			binarySize: buffer.length,
 			fileName: binaryData.fileName,
@@ -635,8 +628,6 @@ async function processText(
 	return {
 		json: {
 			...item.json,
-			processed: true,
-			processingType: 'text',
 			showText,
 			text,
 			...(showText && {
