@@ -17,7 +17,7 @@ import {
 } from './utils';
 
 let defaulLanguage: LanguageOption =
-	(localStorage.getItem('n8n-language') as LanguageOption) ?? 'English';
+	(localStorage.getItem('n8n-language') as LanguageOption) ?? 'Chinese';
 
 export const i18nInstance = createI18n({
 	locale: defaulLanguage == 'English' ? 'en' : 'zh',
