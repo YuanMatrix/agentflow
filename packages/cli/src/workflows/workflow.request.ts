@@ -64,4 +64,6 @@ export declare namespace WorkflowRequest {
 	type ManualRun = AuthenticatedRequest<{ workflowId: string }, {}, ManualRunPayload, {}>;
 
 	type Share = AuthenticatedRequest<{ workflowId: string }, {}, { shareWithIds: string[] }>;
+
+	type UpdateAuditStatus = AuthenticatedRequest<{ workflowId: string }, {}, { status: string }>;
 }

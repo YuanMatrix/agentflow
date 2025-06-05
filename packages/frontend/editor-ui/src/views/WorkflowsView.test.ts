@@ -15,7 +15,7 @@ import { useTagsStore } from '@/stores/tags.store';
 import { createRouter, createWebHistory } from 'vue-router';
 import * as usersApi from '@/api/users';
 import { useFoldersStore } from '@/stores/folders.store';
-
+import { WorkflowStatus } from 'n8n-workflow';
 vi.mock('@/api/projects.api');
 vi.mock('@/api/users');
 vi.mock('@/api/sourceControl');
@@ -308,6 +308,7 @@ describe('Folders', () => {
 			createdAt: new Date().toISOString(),
 			updatedAt: new Date().toISOString(),
 		},
+		status: 'created' as WorkflowStatus,
 	};
 	const TEST_FOLDER_RESOURCE: WorkflowListResource = {
 		resource: 'folder',

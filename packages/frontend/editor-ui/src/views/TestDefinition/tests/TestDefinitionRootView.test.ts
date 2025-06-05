@@ -6,7 +6,7 @@ import TestDefinitionRootView from '../TestDefinitionRootView.vue';
 import { useWorkflowsStore } from '@/stores/workflows.store';
 import { mockedStore } from '@/__tests__/utils';
 import type { IWorkflowDb } from '@/Interface';
-
+import { WorkflowStatus } from 'n8n-workflow';
 import { waitFor } from '@testing-library/vue';
 
 describe('TestDefinitionRootView', () => {
@@ -26,6 +26,7 @@ describe('TestDefinitionRootView', () => {
 		tags: [],
 		pinData: {},
 		versionId: '',
+		status: 'created' as WorkflowStatus,
 		usedCredentials: [],
 	};
 

@@ -7,6 +7,7 @@ import { createTestingPinia } from '@pinia/testing';
 import { waitFor } from '@testing-library/vue';
 import {
 	NodeConnectionTypes,
+	WorkflowStatus,
 	type IConnections,
 	type INodeExecutionData,
 	type IRunData,
@@ -75,6 +76,7 @@ const render = (props: Partial<Props> = {}, pinData?: INodeExecutionData[], runD
 				nodes,
 				connections,
 				versionId: '',
+				status: 'created' as WorkflowStatus,
 			},
 			finished: false,
 			mode: 'trigger',

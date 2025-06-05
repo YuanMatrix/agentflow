@@ -22,7 +22,7 @@ import { In, type FindOptionsRelations } from '@n8n/typeorm';
 import axios from 'axios';
 import express from 'express';
 import { Logger } from 'n8n-core';
-import { UnexpectedError } from 'n8n-workflow';
+import { UnexpectedError, WorkflowStatus } from 'n8n-workflow';
 import { v4 as uuid } from 'uuid';
 
 import type { Project } from '@/databases/entities/project';
@@ -392,6 +392,16 @@ export class WorkflowsController {
 		}
 
 		return true;
+	}
+
+	@Patch('/:workflowId/audit-status')
+	@ProjectScope('workflow:update')
+	async updateAuditStatus(req: WorkflowRequest.UpdateAuditStatus) {
+		return await this.workflowService.updateAuditStatus(
+			req.user,
+			req.params.workflowId,
+			req.body.status as WorkflowStatus,
+		);
 	}
 
 	@Post('/:workflowId/run')

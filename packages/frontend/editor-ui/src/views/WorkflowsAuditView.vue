@@ -38,7 +38,6 @@ import { usePostHog } from '@/stores/posthog.store';
 import { useDocumentTitle } from '@/composables/useDocumentTitle';
 import { useI18n } from '@/composables/useI18n';
 import { type LocationQueryRaw, useRoute, useRouter } from 'vue-router';
-import { useUserHelpers } from '@/composables/useUserHelpers';
 import { useTelemetry } from '@/composables/useTelemetry';
 import {
 	N8nCard,
@@ -49,7 +48,7 @@ import {
 	N8nSelect,
 	N8nText,
 } from '@n8n/design-system';
-import ProjectHeader from '@/components/Projects/ProjectHeader.vue';
+import ProjectAuditHeader from '@/components/Projects/ProjectAuditHeader.vue';
 import { getEasyAiWorkflowJson } from '@/utils/easyAiWorkflowUtils';
 import { useDebounce } from '@/composables/useDebounce';
 import { createEventBus } from '@n8n/utils/event-bus';
@@ -66,7 +65,7 @@ import { useUsageStore } from '@/stores/usage.store';
 import { useInsightsStore } from '@/features/insights/insights.store';
 import InsightsSummary from '@/features/insights/components/InsightsSummary.vue';
 import { useOverview } from '@/composables/useOverview';
-import { PROJECT_ROOT } from 'n8n-workflow';
+import { PROJECT_ROOT, WorkflowStatus } from 'n8n-workflow';
 
 const SEARCH_DEBOUNCE_TIME = 300;
 const FILTERS_DEBOUNCE_TIME = 100;
@@ -129,8 +128,6 @@ const workflowsAndFolders = ref<WorkflowListResource[]>([]);
 
 const easyAICalloutVisible = ref(true);
 
-const { canUserAccessRouteByName } = useUserHelpers(router, route);
-
 const currentPage = ref(1);
 const pageSize = ref(DEFAULT_WORKFLOW_PAGE_SIZE);
 const currentSort = ref('updatedAt:desc');
@@ -181,12 +178,6 @@ const folderActions = computed<
 	},
 ]);
 
-const folderCardActions = computed(() =>
-	folderActions.value.filter(
-		(action) => !action.onlyAvailableOn || action.onlyAvailableOn === 'card',
-	),
-);
-
 const mainBreadcrumbsActions = computed(() =>
 	folderActions.value.filter(
 		(action) => !action.onlyAvailableOn || action.onlyAvailableOn === 'mainBreadcrumbs',
@@ -194,7 +185,7 @@ const mainBreadcrumbsActions = computed(() =>
 );
 
 const readOnlyEnv = computed(() => sourceControlStore.preferences.branchReadOnly);
-const isOverviewPage = computed(() => route.name === VIEWS.WORKFLOWS);
+const isOverviewPage = computed(() => route.name === VIEWS.AUDIT);
 const currentUser = computed(() => usersStore.currentUser ?? ({} as IUser));
 const isShareable = computed(
 	() => settingsStore.isEnterpriseFeatureEnabled[EnterpriseEditionFeature.Sharing],
@@ -485,7 +476,7 @@ const fetchWorkflows = async () => {
 			: filters.value.status === StatusFilter.ACTIVE;
 
 	// Only fetch folders if showFolders is enabled and there are not tags or active filter applied
-	const fetchFolders = showFolders.value && !tags.length && activeFilter === undefined;
+	const fetchFolders = false;
 
 	try {
 		const fetchedResources = await workflowsStore.fetchWorkflowsPage(
@@ -500,9 +491,7 @@ const fetchWorkflows = async () => {
 				parentFolderId:
 					parentFolder ??
 					(isOverviewPage.value ? undefined : filters?.value.search ? undefined : PROJECT_ROOT), // Sending 0 will only show one level of folders
-				status: canUserAccessRouteByName(VIEWS.AUDIT)
-					? ['created', 'approved', 'declined']
-					: ['created', 'submitted', 'approved', 'declined'],
+				status: ['submitted'] as WorkflowStatus[],
 			},
 			fetchFolders,
 		);
@@ -780,14 +769,6 @@ const getFolderContent = async (folderId: string) => {
 	}
 };
 
-/* Drag and drop methods */
-
-const onFolderCardDrop = async (event: MouseEvent) => {
-	const { draggedResource, dropTarget } = folderHelpers.handleDrop(event);
-	if (!draggedResource || !dropTarget) return;
-	await moveResourceOnDrop(draggedResource, dropTarget);
-};
-
 const onBreadCrumbsItemDrop = async (item: PathItem) => {
 	if (!foldersStore.draggedElement) return;
 	await moveResourceOnDrop(
@@ -987,54 +968,6 @@ const onBreadCrumbsAction = async (action: string) => {
 			break;
 	}
 };
-
-// Folder card action handlers
-// These render on each folder card and are applied to the clicked folder
-const onFolderCardAction = async (payload: { action: string; folderId: string }) => {
-	const clickedFolder = foldersStore.getCachedFolder(payload.folderId);
-	if (!clickedFolder) return;
-	switch (payload.action) {
-		case FOLDER_LIST_ITEM_ACTIONS.CREATE:
-			await createFolder(
-				{
-					id: clickedFolder.id,
-					name: clickedFolder.name,
-					type: 'folder',
-				},
-				{ openAfterCreate: true },
-			);
-			break;
-		case FOLDER_LIST_ITEM_ACTIONS.CREATE_WORKFLOW:
-			currentFolderId.value = clickedFolder.id;
-			void router.push({
-				name: VIEWS.NEW_WORKFLOW,
-				query: { projectId: route.params?.projectId, parentFolderId: clickedFolder.id },
-			});
-			break;
-		case FOLDER_LIST_ITEM_ACTIONS.DELETE: {
-			const content = await getFolderContent(clickedFolder.id);
-			await deleteFolder(clickedFolder.id, content.workflowCount, content.subFolderCount);
-			break;
-		}
-		case FOLDER_LIST_ITEM_ACTIONS.RENAME:
-			await renameFolder(clickedFolder.id);
-			break;
-		case FOLDER_LIST_ITEM_ACTIONS.MOVE:
-			uiStore.openMoveToFolderModal(
-				'folder',
-				{
-					id: clickedFolder.id,
-					name: clickedFolder.name,
-					parentFolderId: clickedFolder.parentFolder,
-				},
-				workflowListEventBus,
-			);
-			break;
-		default:
-			break;
-	}
-};
-
 // Reusable action handlers
 // Both action handlers ultimately call these methods once folder to apply action to is determined
 const createFolder = async (
@@ -1344,13 +1277,13 @@ const onCreateWorkflowClick = () => {
 		@mouseleave="folderHelpers.resetDropTarget"
 	>
 		<template #header>
-			<ProjectHeader @create-folder="createFolderInCurrent">
+			<ProjectAuditHeader @create-folder="createFolderInCurrent">
 				<InsightsSummary
 					v-if="overview.isOverviewSubPage && insightsStore.isSummaryEnabled"
 					:loading="insightsStore.summary.isLoading"
 					:summary="insightsStore.summary.state"
 				/>
-			</ProjectHeader>
+			</ProjectAuditHeader>
 		</template>
 		<template v-if="foldersEnabled || showRegisteredCommunityCTA" #add-button>
 			<N8nTooltip
@@ -1453,31 +1386,6 @@ const onCreateWorkflowClick = () => {
 						</N8nText>
 					</N8nCard>
 				</template>
-				<FolderCard
-					:data="data as FolderResource"
-					:actions="folderCardActions"
-					:read-only="
-						readOnlyEnv || (!hasPermissionToDeleteFolders && !hasPermissionToCreateFolders)
-					"
-					:personal-project="projectsStore.personalProject"
-					:data-resourceid="(data as FolderResource).id"
-					:data-resourcename="(data as FolderResource).name"
-					:class="{
-						['mb-2xs']: true,
-						[$style['drag-active']]: isDragging,
-						[$style.dragging]:
-							foldersStore.draggedElement?.type === 'folder' &&
-							foldersStore.draggedElement?.id === (data as FolderResource).id,
-						[$style['drop-active']]:
-							foldersStore.activeDropTarget?.id === (data as FolderResource).id,
-					}"
-					:show-ownership-badge="showCardsBadge"
-					data-target="folder"
-					class="mb-2xs"
-					@action="onFolderCardAction"
-					@mouseenter="folderHelpers.onDragEnter"
-					@mouseup="onFolderCardDrop"
-				/>
 			</Draggable>
 			<Draggable
 				v-else

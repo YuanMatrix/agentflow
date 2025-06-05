@@ -82,6 +82,7 @@ const hideMenuBar = computed(() =>
 	Boolean(activeNode.value && activeNode.value.type !== STICKY_NODE_TYPE),
 );
 const workflow = computed(() => workflowsStore.workflow);
+console.log('active at setup in MainHeader.vue:', workflow.value.active);
 const workflowId = computed(() =>
 	String(router.currentRoute.value.params.name || workflowsStore.workflowId),
 );
@@ -238,6 +239,7 @@ function hideGithubButton() {
 					:scopes="workflow.scopes"
 					:active="workflow.active"
 					:read-only="readOnly"
+					:status="workflow.status"
 				/>
 				<div v-if="showGitHubButton" :class="[$style['github-button'], 'hidden-sm-and-down']">
 					<div :class="$style['github-button-container']">

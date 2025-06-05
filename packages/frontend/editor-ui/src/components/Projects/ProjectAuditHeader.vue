@@ -24,16 +24,6 @@ const emit = defineEmits<{
 	createFolder: [];
 }>();
 
-const projectName = computed(() => {
-	if (!projectsStore.currentProject) {
-		return i18n.baseText('projects.menu.overview');
-	} else if (projectsStore.currentProject.type === ProjectTypes.Personal) {
-		return i18n.baseText('projects.menu.personal');
-	} else {
-		return projectsStore.currentProject.name;
-	}
-});
-
 const projectPermissions = computed(
 	() => getResourcePermissions(projectsStore.currentProject?.scopes).project,
 );
@@ -130,11 +120,13 @@ const onSelect = (action: string) => {
 		<div :class="$style.projectHeader">
 			<div :class="$style.projectDetails">
 				<div :class="$style.headerActions">
-					<N8nHeading bold tag="h2" size="xlarge">{{ projectName }}</N8nHeading>
+					<N8nHeading bold tag="h2" size="xlarge">
+						{{ i18n.baseText('projects.menu.audit') }}
+					</N8nHeading>
 					<N8nText color="text-light">
 						<slot name="subtitle">
 							<span v-if="!projectsStore.currentProject">{{
-								i18n.baseText('projects.header.subtitle')
+								i18n.baseText('projects.audit.subtitle')
 							}}</span>
 						</slot>
 					</N8nText>

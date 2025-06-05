@@ -8,7 +8,7 @@ import WorkflowCard from '@/components/WorkflowCard.vue';
 import type { IWorkflowDb } from '@/Interface';
 import { useRouter } from 'vue-router';
 import { useProjectsStore } from '@/stores/projects.store';
-
+import { WorkflowStatus } from 'n8n-workflow';
 vi.mock('vue-router', () => {
 	const push = vi.fn();
 	const resolve = vi.fn().mockReturnValue({ href: '' });
@@ -33,6 +33,7 @@ const createWorkflow = (overrides = {}): IWorkflowDb => ({
 	connections: {},
 	active: true,
 	versionId: '1',
+	status: 'created' as WorkflowStatus,
 	...overrides,
 });
 

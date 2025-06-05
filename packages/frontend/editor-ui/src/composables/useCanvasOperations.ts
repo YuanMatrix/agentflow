@@ -1478,6 +1478,7 @@ export function useCanvasOperations({ router }: { router: ReturnType<typeof useR
 		});
 
 		workflowsStore.setNodes(data.nodes);
+		workflowsStore.setWorkflowAuditStatus(data.status);
 		workflowsStore.setConnections(data.connections);
 	}
 

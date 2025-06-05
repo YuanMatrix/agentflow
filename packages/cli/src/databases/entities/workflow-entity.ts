@@ -1,6 +1,7 @@
 import {
 	Column,
 	Entity,
+	Check,
 	Index,
 	JoinColumn,
 	JoinTable,
@@ -10,7 +11,7 @@ import {
 } from '@n8n/typeorm';
 import { Length } from 'class-validator';
 import { IConnections, IDataObject, IWorkflowSettings, WorkflowFEMeta } from 'n8n-workflow';
-import type { IBinaryKeyData, INode, IPairedItemData } from 'n8n-workflow';
+import type { IBinaryKeyData, INode, IPairedItemData, WorkflowStatus } from 'n8n-workflow';
 
 import type { IWorkflowDb } from '@/interfaces';
 
@@ -40,6 +41,13 @@ export class WorkflowEntity extends WithTimestampsAndStringId implements IWorkfl
 
 	@Column(jsonColumnType)
 	connections: IConnections;
+
+	@Column({
+		type: 'text',
+		default: 'created',
+	})
+	@Check(`status IN ('created', 'submitted', 'approved', 'declined')`)
+	status: WorkflowStatus;
 
 	@Column({
 		type: jsonColumnType,

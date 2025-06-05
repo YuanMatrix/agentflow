@@ -30,4 +30,7 @@ export const workflowFactory = Factory.extend<IWorkflowDb>({
 	tags() {
 		return faker.lorem.words(2.5).split(' ');
 	},
+	status() {
+		return faker.helpers.arrayElement(['created', 'submitted', 'approved', 'declined']);
+	},
 });

@@ -43,6 +43,7 @@ import type {
 	IPersonalizationSurveyAnswersV4,
 	AnnotationVote,
 	ITaskData,
+	WorkflowStatus,
 } from 'n8n-workflow';
 
 import type {
@@ -253,6 +254,7 @@ export interface IWorkflowDataUpdate {
 	versionId?: string;
 	meta?: WorkflowMetadata;
 	parentFolderId?: string;
+	status?: WorkflowStatus;
 }
 
 export interface IWorkflowDataCreate extends IWorkflowDataUpdate {
@@ -329,6 +331,7 @@ export interface IWorkflowDb {
 	usedCredentials?: IUsedCredential[];
 	meta?: WorkflowMetadata;
 	parentFolder?: { id: string; name: string };
+	status: WorkflowStatus;
 }
 
 // For workflow list we don't need the full workflow data

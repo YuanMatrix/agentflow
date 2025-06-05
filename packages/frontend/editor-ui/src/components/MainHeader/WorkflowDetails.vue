@@ -65,6 +65,7 @@ const props = defineProps<{
 	meta: IWorkflowDb['meta'];
 	scopes: IWorkflowDb['scopes'];
 	active: IWorkflowDb['active'];
+	status: IWorkflowDb['status'];
 }>();
 
 const $style = useCssModule();
@@ -641,6 +642,7 @@ function showCreateWorkflowSuccessToast(id?: string) {
 		<PushConnectionTracker class="actions">
 			<span :class="`activator ${$style.group}`">
 				<WorkflowActivator
+					v-if="hasPermission(['rbac'], { rbac: { scope: 'audit:view' } }) || status === 'approved'"
 					:workflow-active="active"
 					:workflow-id="id"
 					:workflow-permissions="workflowPermissions"
@@ -698,6 +700,15 @@ function showCreateWorkflowSuccessToast(id?: string) {
 					data-test-id="workflow-save-button"
 					@click="onSaveButtonClick"
 				/>
+
+				<AuditButtons
+					v-if="
+						!uiStore.stateIsDirty && !hasPermission(['rbac'], { rbac: { scope: 'audit:view' } })
+					"
+					:workflow_id="props.id"
+					:audit_status="props.status"
+				/>
+
 				<WorkflowHistoryButton
 					:workflow-id="props.id"
 					:is-feature-enabled="isWorkflowHistoryFeatureEnabled"
@@ -705,6 +716,7 @@ function showCreateWorkflowSuccessToast(id?: string) {
 					@upgrade="goToWorkflowHistoryUpgrade"
 				/>
 			</div>
+			<p :class="$style.saved">{{ locale.baseText(`audit.status.${status}`) }}</p>
 			<div :class="[$style.workflowMenuContainer, $style.group]">
 				<input
 					ref="importFileRef"
@@ -827,5 +839,12 @@ $--header-spacing: 20px;
 	right: var(--spacing-xs);
 	top: var(--spacing-xs);
 	cursor: pointer;
+}
+.saved {
+	color: $custom-font-very-light;
+	font-size: 12px;
+	font-weight: var(--font-weight-bold);
+	line-height: 12px;
+	text-align: center;
 }
 </style>
