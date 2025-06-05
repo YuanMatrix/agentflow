@@ -36,8 +36,10 @@ export function useChatTrigger({
 	);
 
 	const allowFileUploads = computed(() => {
+		console.log(chatTriggerNode);
 		return (
-			(chatTriggerNode.value?.parameters?.options as INodeParameters)?.allowFileUploads === true
+			(chatTriggerNode.value?.parameters?.options as INodeParameters)?.allowFileUploads === true ||
+			chatTriggerNode.value?.parameters?.allowFileUploads === true
 		);
 	});
 
@@ -45,7 +47,9 @@ export function useChatTrigger({
 		return (
 			(
 				chatTriggerNode.value?.parameters?.options as INodeParameters
-			)?.allowedFilesMimeTypes?.toString() ?? ''
+			)?.allowedFilesMimeTypes?.toString() ??
+			(chatTriggerNode.value?.parameters?.allowedFilesMimeTypes as INodeParameters)?.toString() ??
+			''
 		);
 	});
 

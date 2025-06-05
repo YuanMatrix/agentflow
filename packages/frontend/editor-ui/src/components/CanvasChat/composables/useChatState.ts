@@ -10,6 +10,7 @@ import { useCanvasStore } from '@/stores/canvas.store';
 import { useNodeTypesStore } from '@/stores/nodeTypes.store';
 import { useWorkflowsStore } from '@/stores/workflows.store';
 import { ChatOptionsSymbol, ChatSymbol } from '@n8n/chat/constants';
+import { NodePropertiesSymbol } from '@n8n/chat/composables';
 import { chatEventBus } from '@n8n/chat/event-buses';
 import type { Chat, ChatMessage, ChatOptions } from '@n8n/chat/types';
 import { type INode } from 'n8n-workflow';
@@ -19,6 +20,7 @@ import { computed, provide, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { LOGS_PANEL_STATE } from '../types/logs';
 import { restoreChatHistory } from '@/components/CanvasChat/utils';
+import { type IDataObject } from 'n8n-workflow';
 
 interface ChatState {
 	currentSessionId: Ref<string>;
@@ -121,6 +123,24 @@ export function useChatState(isReadOnly: boolean, onWindowResize?: () => void): 
 		isDisabled: computed(() => isReadOnly),
 		allowFileUploads,
 		locale,
+	});
+
+	// provide node properties
+	provide(NodePropertiesSymbol, {
+		allowFileUploads: computed(() => {
+			const params = chatTriggerNode.value?.parameters;
+			return (
+				(params?.options as IDataObject)?.allowFileUploads ?? params?.allowFileUploads ?? false
+			);
+		}),
+		allowedFilesMimeTypes: computed(() => {
+			const params = chatTriggerNode.value?.parameters;
+			return (
+				(params?.options as IDataObject)?.allowedFilesMimeTypes ??
+				params?.allowedFilesMimeTypes ??
+				''
+			).toString();
+		}),
 	});
 
 	const restoredChatMessages = computed(() =>
