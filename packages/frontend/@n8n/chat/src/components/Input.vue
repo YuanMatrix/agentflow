@@ -47,16 +47,10 @@ const isFileUploadDisabled = computed(
 	() => isFileUploadAllowed.value && unref(waitingForResponse) && !options.disabled?.value,
 );
 const isFileUploadAllowed = computed(() => {
-	if (properties?.allowFileUploads !== undefined) {
-		return unref(properties.allowFileUploads);
-	}
-	return unref(options.allowFileUploads) === true;
+	return unref(properties.allowFileUploads);
 });
 const allowedFileTypes = computed(() => {
-	if (properties?.allowedFilesMimeTypes !== undefined) {
-		return unref(properties.allowedFilesMimeTypes);
-	}
-	return unref(options.allowedFilesMimeTypes);
+	return unref(properties.allowedFilesMimeTypes);
 });
 
 const styleVars = computed(() => {

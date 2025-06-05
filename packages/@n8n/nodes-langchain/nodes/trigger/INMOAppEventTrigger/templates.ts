@@ -10,7 +10,7 @@ export function createPage({
 	initialMessages,
 	authentication,
 	allowFileUploads = true,
-	allowedFilesMimeTypes = 'image/*',
+	allowedFilesMimeTypes = 'image/*,video/*,audio/*',
 	customCss,
 }: {
 	instanceId: string;

@@ -34,7 +34,7 @@ const allowedFileMimeTypeOption: INodeProperties = {
 	displayName: 'Allowed File Mime Types',
 	name: 'allowedFilesMimeTypes',
 	type: 'string',
-	default: 'image/*',
+	default: 'image/*,video/*,audio/*',
 	description:
 		'Allowed file types for upload. Comma-separated list of <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types" target="_blank">MIME types</a>.',
 	displayOptions: {
