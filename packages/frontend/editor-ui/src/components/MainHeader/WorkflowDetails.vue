@@ -827,7 +827,9 @@ const onBreadcrumbsItemSelected = (item: PathItem) => {
 
 				<AuditButtons
 					v-if="
-						!uiStore.stateIsDirty && !hasPermission(['rbac'], { rbac: { scope: 'audit:view' } })
+						!uiStore.stateIsDirty &&
+						!hasPermission(['rbac'], { rbac: { scope: 'audit:view' } }) &&
+						!isNewWorkflow
 					"
 					:workflow_id="props.id"
 					:audit_status="props.status"
