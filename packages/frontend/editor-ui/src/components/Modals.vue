@@ -131,10 +131,6 @@ import type { EventBus } from '@n8n/utils/event-bus';
 			<ImportWorkflowUrlModal />
 		</ModalRoot>
 
-		<ModalRoot :name="PERSONALIZATION_MODAL_KEY">
-			<PersonalizationModal />
-		</ModalRoot>
-
 		<ModalRoot :name="TAGS_MANAGER_MODAL_KEY">
 			<WorkflowTagsManager />
 		</ModalRoot>
