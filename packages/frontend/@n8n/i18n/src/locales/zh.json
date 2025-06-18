@@ -3208,5 +3208,16 @@
 	"workflows.filters.showArchived": "显示已归档工作流",
 	"workflows.item.archive": "归档",
 	"workflows.item.archived": "已归档",
-	"workflows.item.unarchive": "取消归档"
+	"workflows.item.unarchive": "取消归档",
+	"n8n-nodes-base.credentials.openAiApi": {
+		"url": {
+			"displayName": "基础url"
+		},
+		"apiKey": {
+			"displayName": "api密钥"
+		},
+		"organizationId": {
+			"displayName": "组织ID (organization ID)（选填）"
+		}
+	}
 }
