@@ -51,7 +51,7 @@ import { importCurlEventBus, ndvEventBus } from '@/event-bus';
 import { ProjectTypes } from '@/types/projects.types';
 import { updateDynamicConnections } from '@/utils/nodeSettingsUtils';
 import FreeAiCreditsCallout from '@/components/FreeAiCreditsCallout.vue';
-import { filterNodeOperationsByUserRole } from '@/utils/rbacUtils';
+import { filterNodeOperationsByUserRole } from '@/utils/nodeOperationFilters';
 
 const props = withDefaults(
 	defineProps<{

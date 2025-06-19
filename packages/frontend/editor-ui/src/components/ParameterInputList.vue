@@ -40,7 +40,7 @@ import { get, set } from 'lodash-es';
 import { N8nIcon, N8nIconButton, N8nInputLabel, N8nNotice, N8nText } from '@n8n/design-system';
 import { useRouter } from 'vue-router';
 import { storeToRefs } from 'pinia';
-import { filterNodeOperationsByUserRole } from '@/utils/rbacUtils';
+import { filterNodeOperationsByUserRole } from '@/utils/nodeOperationFilters';
 
 const LazyFixedCollectionParameter = defineAsyncComponent(
 	async () => await import('./FixedCollectionParameter.vue'),
