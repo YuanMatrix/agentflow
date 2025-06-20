@@ -471,7 +471,16 @@ async function processImage(
 		const buffer = await getBinaryBuffer(context, binaryData, itemIndex, propertyName);
 
 		// eslint-disable-next-line @typescript-eslint/no-var-requires
-		const sharp = require('sharp');
+		let sharp;
+		try {
+			sharp = require('sharp');
+		} catch (error) {
+			throw new NodeOperationError(
+				context.getNode(),
+				`Sharp module not found. Please install sharp to use image processing features: ${(error as Error).message}`,
+				{ itemIndex },
+			);
+		}
 		let sharpInstance = sharp(buffer);
 
 		if (showImage) {
