@@ -283,6 +283,7 @@ function hookFunctionsSave(
 			workflowStatisticsService.emit('workflowExecutionCompleted', {
 				workflowData: this.workflowData,
 				fullRunData,
+				executionId: this.executionId,
 			});
 		}
 	});
@@ -351,6 +352,7 @@ function hookFunctionsSaveWorker(
 			workflowStatisticsService.emit('workflowExecutionCompleted', {
 				workflowData: this.workflowData,
 				fullRunData,
+				executionId: this.executionId,
 			});
 		}
 	});

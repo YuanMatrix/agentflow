@@ -27,6 +27,7 @@ import { mockInstance } from '@test/mocking';
 import { getPersonalProject } from '@test-integration/db/projects';
 import { createUser } from '@test-integration/db/users';
 import { createWorkflow } from '@test-integration/db/workflows';
+import { ExecutionRepository } from '@n8n/db';
 
 import * as testDb from '../../../test/integration/shared/test-db';
 
@@ -282,6 +283,7 @@ describe('WorkflowStatisticsService', () => {
 			workflowStatisticsService = new WorkflowStatisticsService(
 				mock(),
 				workflowStatisticsRepository,
+				mock<ExecutionRepository>(),
 				ownershipService,
 				userService,
 				eventService,

@@ -1,5 +1,5 @@
 import { Logger } from '@n8n/backend-common';
-import { StatisticsNames, WorkflowStatisticsRepository } from '@n8n/db';
+import { StatisticsNames, WorkflowStatisticsRepository, ExecutionRepository } from '@n8n/db';
 import { Service } from '@n8n/di';
 import type {
 	ExecutionStatus,
@@ -12,6 +12,7 @@ import type {
 import { EventService } from '@/events/event.service';
 import { UserService } from '@/services/user.service';
 import { TypedEmitter } from '@/typed-emitter';
+import { calculateTotalTokensConsumed } from '@/execution-lifecycle/calculate-tokens';
 
 import { OwnershipService } from './ownership.service';
 
@@ -46,7 +47,11 @@ const isModeRootExecution = {
 
 type WorkflowStatisticsEvents = {
 	nodeFetchedData: { workflowId: string; node: INode };
-	workflowExecutionCompleted: { workflowData: IWorkflowBase; fullRunData: IRun };
+	workflowExecutionCompleted: {
+		workflowData: IWorkflowBase;
+		fullRunData: IRun;
+		executionId?: string;
+	};
 	'telemetry.onFirstProductionWorkflowSuccess': {
 		project_id: string;
 		workflow_id: string;
@@ -66,6 +71,7 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 	constructor(
 		private readonly logger: Logger,
 		private readonly repository: WorkflowStatisticsRepository,
+		private readonly executionRepository: ExecutionRepository,
 		private readonly ownershipService: OwnershipService,
 		private readonly userService: UserService,
 		private readonly eventService: EventService,
@@ -79,12 +85,34 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 		);
 		this.on(
 			'workflowExecutionCompleted',
-			async ({ workflowData, fullRunData }) =>
-				await this.workflowExecutionCompleted(workflowData, fullRunData),
+			async ({ workflowData, fullRunData, executionId }) =>
+				await this.workflowExecutionCompleted(workflowData, fullRunData, executionId),
 		);
 	}
 
-	async workflowExecutionCompleted(workflowData: IWorkflowBase, runData: IRun): Promise<void> {
+	async workflowExecutionCompleted(
+		workflowData: IWorkflowBase,
+		runData: IRun,
+		executionId?: string,
+	): Promise<void> {
+		// Calculate total tokens consumed from the execution data
+		const totalTokens = calculateTotalTokensConsumed(runData);
+
+		// Update the execution with the calculated token count
+		this.logger.info(`Total tokens consumed: ${totalTokens}`);
+		if (executionId && totalTokens > 0) {
+			this.logger.info(`Updating execution ${executionId} with ${totalTokens} tokens consumed`);
+			try {
+				await this.executionRepository.update({ id: executionId }, { tokensConsumed: totalTokens });
+			} catch (error) {
+				this.logger.debug('Failed to update tokensConsumed for execution', {
+					executionId,
+					totalTokens,
+					error: error.message,
+				});
+			}
+		}
+
 		// Determine the name of the statistic
 		const isSuccess = runData.status === 'success';
 		const manual = runData.mode === 'manual';
