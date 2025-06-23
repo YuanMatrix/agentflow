@@ -806,6 +806,8 @@
 	"executionsList.startedAt": "开始时间",
 	"executionsList.trigger": "触发方式",
 	"executionsList.runTime": "运行时长",
+	"executionsList.tokensConsumed": "令牌消耗",
+	"executionsList.costIncurred": "花费",
 	"executionsList.startingSoon": "即将开始",
 	"executionsList.started": "{date}，{time}",
 	"executionsList.id": "执行 ID",

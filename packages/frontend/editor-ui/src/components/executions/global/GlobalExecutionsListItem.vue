@@ -33,6 +33,8 @@ const emit = defineEmits<{
 const props = withDefaults(
 	defineProps<{
 		execution: ExecutionSummary;
+		tokensConsumed: number;
+		costIncurred: number;
 		selected?: boolean;
 		workflowName?: string;
 		workflowPermissions: PermissionsRecord['workflow'];
@@ -238,6 +240,12 @@ async function handleActionItemClick(commandData: Command) {
 				{{ formattedStoppedAtDate }}
 			</template>
 			<ExecutionsTime v-else :start-time="execution.startedAt ?? execution.createdAt" />
+		</td>
+		<td>
+			{{ tokensConsumed ?? 0 }}
+		</td>
+		<td>
+			{{ costIncurred ?? 0 }}
 		</td>
 		<td>
 			<span v-if="execution.id">{{ execution.id }}</span>

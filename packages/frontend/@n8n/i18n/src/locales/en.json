@@ -808,6 +808,8 @@
 	"executionsList.runTime": "Run time",
 	"executionsList.startingSoon": "Starting soon",
 	"executionsList.started": "{date}, {time}",
+	"executionsList.tokensConsumed": "Tokens",
+	"executionsList.costIncurred": "Cost",
 	"executionsList.id": "Exec. ID",
 	"executionsList.status": "Status",
 	"executionsList.statusCanceled": "Canceled",

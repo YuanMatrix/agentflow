@@ -6,18 +6,18 @@ export class AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows1750636800000
 	name = 'AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows1750636800000';
 
 	public async up({ queryRunner, tablePrefix }: MigrationContext): Promise<void> {
-		// Check if the column already exists in usertable and execution-entity table
+		// Check if the column already exists in usertable and execution_entity table
 		const userTable = await queryRunner.getTable(`${tablePrefix}user`);
 		const tokensConsumedCollumnExistsInUserTable = userTable?.findColumnByName('tokensConsumed');
 		const costIncurredColumnExistsInUserTable = userTable?.findColumnByName('costIncurred');
 
-		const executionEntityTable = await queryRunner.getTable(`${tablePrefix}execution-entity`);
+		const executionEntityTable = await queryRunner.getTable(`${tablePrefix}execution_entity`);
 		const tokensConsumedColumnExistsInExecutionEntityTable =
 			executionEntityTable?.findColumnByName('tokensConsumed');
 		const costIncurredColumnExistsInExecutionEntityTable =
 			executionEntityTable?.findColumnByName('costIncurred');
 
-		const workflowEntityTable = await queryRunner.getTable(`${tablePrefix}workflow-entity`);
+		const workflowEntityTable = await queryRunner.getTable(`${tablePrefix}workflow_entity`);
 		const tokensConsumedColumnExistsInWorkflowEntityTable =
 			workflowEntityTable?.findColumnByName('tokensConsumed');
 		const costIncurredColumnExistsInWorkflowEntityTable =
@@ -35,24 +35,24 @@ export class AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows1750636800000
 		}
 		if (!tokensConsumedColumnExistsInExecutionEntityTable) {
 			await queryRunner.query(
-				`ALTER TABLE ${tablePrefix}execution-entity ADD COLUMN tokensConsumed BIGINT DEFAULT 0 NOT NULL`,
+				`ALTER TABLE ${tablePrefix}execution_entity ADD COLUMN tokensConsumed BIGINT DEFAULT 0 NOT NULL`,
 			);
 		}
 		if (!costIncurredColumnExistsInExecutionEntityTable) {
 			await queryRunner.query(
-				`ALTER TABLE ${tablePrefix}execution-entity ADD COLUMN costIncurred BIGINT DEFAULT 0 NOT NULL`,
+				`ALTER TABLE ${tablePrefix}execution_entity ADD COLUMN costIncurred BIGINT DEFAULT 0 NOT NULL`,
 			);
 		}
 
 		if (!tokensConsumedColumnExistsInWorkflowEntityTable) {
 			await queryRunner.query(
-				`ALTER TABLE ${tablePrefix}workflow-entity ADD COLUMN tokensConsumed BIGINT DEFAULT 0 NOT NULL`,
+				`ALTER TABLE ${tablePrefix}workflow_entity ADD COLUMN tokensConsumed BIGINT DEFAULT 0 NOT NULL`,
 			);
 		}
 
 		if (!costIncurredColumnExistsInWorkflowEntityTable) {
 			await queryRunner.query(
-				`ALTER TABLE ${tablePrefix}workflow-entity ADD COLUMN costIncurred BIGINT DEFAULT 0 NOT NULL`,
+				`ALTER TABLE ${tablePrefix}workflow_entity ADD COLUMN costIncurred BIGINT DEFAULT 0 NOT NULL`,
 			);
 		}
 	}
@@ -63,13 +63,13 @@ export class AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows1750636800000
 		const tokensConsumedCollumnExistsInUserTable = userTable?.findColumnByName('tokensConsumed');
 		const costIncurredColumnExistsInUserTable = userTable?.findColumnByName('costIncurred');
 
-		const executionEntityTable = await queryRunner.getTable(`${tablePrefix}execution-entity`);
+		const executionEntityTable = await queryRunner.getTable(`${tablePrefix}execution_entity`);
 		const tokensConsumedColumnExistsInExecutionEntityTable =
 			executionEntityTable?.findColumnByName('tokensConsumed');
 		const costIncurredColumnExistsInExecutionEntityTable =
 			executionEntityTable?.findColumnByName('costIncurred');
 
-		const workflowEntityTable = await queryRunner.getTable(`${tablePrefix}workflow-entity`);
+		const workflowEntityTable = await queryRunner.getTable(`${tablePrefix}workflow_entity`);
 		const tokensConsumedColumnExistsInWorkflowEntityTable =
 			workflowEntityTable?.findColumnByName('tokensConsumed');
 		const costIncurredColumnExistsInWorkflowEntityTable =
@@ -83,21 +83,21 @@ export class AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows1750636800000
 		}
 		if (tokensConsumedColumnExistsInExecutionEntityTable) {
 			await queryRunner.query(
-				`ALTER TABLE ${tablePrefix}execution-entity DROP COLUMN tokensConsumed`,
+				`ALTER TABLE ${tablePrefix}execution_entity DROP COLUMN tokensConsumed`,
 			);
 		}
 		if (costIncurredColumnExistsInExecutionEntityTable) {
 			await queryRunner.query(
-				`ALTER TABLE ${tablePrefix}execution-entity DROP COLUMN costIncurred`,
+				`ALTER TABLE ${tablePrefix}execution_entity DROP COLUMN costIncurred`,
 			);
 		}
 		if (tokensConsumedColumnExistsInWorkflowEntityTable) {
 			await queryRunner.query(
-				`ALTER TABLE ${tablePrefix}workflow-entity DROP COLUMN tokensConsumed`,
+				`ALTER TABLE ${tablePrefix}workflow_entity DROP COLUMN tokensConsumed`,
 			);
 		}
 		if (costIncurredColumnExistsInWorkflowEntityTable) {
-			await queryRunner.query(`ALTER TABLE ${tablePrefix}workflow-entity DROP COLUMN costIncurred`);
+			await queryRunner.query(`ALTER TABLE ${tablePrefix}workflow_entity DROP COLUMN costIncurred`);
 		}
 	}
 }
