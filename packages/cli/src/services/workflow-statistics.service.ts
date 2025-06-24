@@ -1,5 +1,10 @@
 import { Logger } from '@n8n/backend-common';
-import { StatisticsNames, WorkflowStatisticsRepository, ExecutionRepository } from '@n8n/db';
+import {
+	StatisticsNames,
+	WorkflowStatisticsRepository,
+	ExecutionRepository,
+	WorkflowRepository,
+} from '@n8n/db';
 import { Service } from '@n8n/di';
 import type {
 	ExecutionStatus,
@@ -51,6 +56,7 @@ type WorkflowStatisticsEvents = {
 		workflowData: IWorkflowBase;
 		fullRunData: IRun;
 		executionId?: string;
+		userId?: string;
 	};
 	'telemetry.onFirstProductionWorkflowSuccess': {
 		project_id: string;
@@ -72,6 +78,7 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 		private readonly logger: Logger,
 		private readonly repository: WorkflowStatisticsRepository,
 		private readonly executionRepository: ExecutionRepository,
+		private readonly workflowRepository: WorkflowRepository,
 		private readonly ownershipService: OwnershipService,
 		private readonly userService: UserService,
 		private readonly eventService: EventService,
@@ -85,8 +92,8 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 		);
 		this.on(
 			'workflowExecutionCompleted',
-			async ({ workflowData, fullRunData, executionId }) =>
-				await this.workflowExecutionCompleted(workflowData, fullRunData, executionId),
+			async ({ workflowData, fullRunData, executionId, userId }) =>
+				await this.workflowExecutionCompleted(workflowData, fullRunData, executionId, userId),
 		);
 	}
 
@@ -94,6 +101,7 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 		workflowData: IWorkflowBase,
 		runData: IRun,
 		executionId?: string,
+		userId?: string,
 	): Promise<void> {
 		// Calculate total tokens consumed from the execution data
 		const totalTokens = calculateTotalTokensConsumed(runData);
@@ -102,6 +110,8 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 		this.logger.info(`Total tokens consumed: ${totalTokens}`);
 		if (executionId && totalTokens > 0) {
 			this.logger.info(`Updating execution ${executionId} with ${totalTokens} tokens consumed`);
+
+			// update the token consumed for the execution
 			try {
 				await this.executionRepository.update({ id: executionId }, { tokensConsumed: totalTokens });
 			} catch (error) {
@@ -110,6 +120,30 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 					totalTokens,
 					error: error.message,
 				});
+			}
+
+			// update the total token consumed by this workflow
+			try {
+				await this.workflowRepository.addTokensConsumedByWorkflow(workflowData.id, totalTokens);
+			} catch (error) {
+				this.logger.debug('Failed to update tokensConsumed for workflow', {
+					workflowId: workflowData.id,
+					totalTokens,
+					error: error.message,
+				});
+			}
+
+			// update the total token consumed by this user
+			if (userId) {
+				try {
+					await this.userService.addTokensConsumedByUser(userId, totalTokens);
+				} catch (error) {
+					this.logger.debug('Failed to update tokensConsumed for user', {
+						userId,
+						totalTokens,
+						error: error.message,
+					});
+				}
 			}
 		}
 

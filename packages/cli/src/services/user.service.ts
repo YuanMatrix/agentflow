@@ -54,6 +54,12 @@ export class UserService {
 		await this.userRepository.save(user);
 	}
 
+	async addTokensConsumedByUser(userId: string, tokensConsumed: number) {
+		const user = await this.userRepository.findOneOrFail({ where: { id: userId } });
+		user.tokensConsumed += tokensConsumed;
+		await this.userRepository.save(user);
+	}
+
 	async toPublic(
 		user: User,
 		options?: {

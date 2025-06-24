@@ -2457,6 +2457,7 @@
 	"workflows.item.delete": "删除",
 	"workflows.item.move": "移动",
 	"workflows.item.changeOwner": "更改所有者",
+	"workflows.item.tokensConsumed": "令牌消耗",
 	"workflows.item.updated": "最后更新",
 	"workflows.item.created": "创建时间",
 	"workflows.item.readonly": "只读",
