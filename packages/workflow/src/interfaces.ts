@@ -2671,8 +2671,8 @@ export interface ExecutionSummary {
 	status: ExecutionStatus;
 	lastNodeExecuted?: string;
 	executionError?: ExecutionError;
-	tokensConsumed?: number;
-	costIncurred?: number;
+	tokensConsumed: number;
+	costIncurred: number;
 	nodeExecutionStatus?: {
 		[key: string]: IExecutionSummaryNodeExecutionResult;
 	};

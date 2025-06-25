@@ -80,13 +80,21 @@ export class WorkflowRepository extends Repository<WorkflowEntity> {
 		return activeWorkflows.map((workflow) => workflow.id);
 	}
 
-	async addTokensConsumedByWorkflow(workflowId: string, tokensConsumed: number) {
+	async addTokensConsumedAndCostByWorkflow(
+		workflowId: string,
+		tokensConsumed: number,
+		totalCost: number,
+	) {
 		const workflowData = await this.findOne({ where: { id: workflowId } });
 		if (!workflowData) {
 			throw new Error('Workflow not found');
 		}
 		const newTokensConsumed = workflowData.tokensConsumed + tokensConsumed;
-		return await this.update(workflowId, { tokensConsumed: newTokensConsumed });
+		const newTotalCost = workflowData.costIncurred + totalCost;
+		return await this.update(workflowId, {
+			tokensConsumed: newTokensConsumed,
+			costIncurred: newTotalCost,
+		});
 	}
 
 	async getActiveCount() {

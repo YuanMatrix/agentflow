@@ -85,7 +85,7 @@ import { AddWorkflowArchivedColumn1745934666076 } from '../common/1745934666076-
 import { DropRoleTable1745934666077 } from '../common/1745934666077-DropRoleTable';
 import type { Migration } from '../migration-types';
 import { AddWorkflowStatus1748822400000 } from '../common/1748822400000-AddWorkflowStatus';
-import { AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows1750636800000 } from '../common/1750636800000-AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows';
+import { AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows1750636800000 } from './1750636800000-AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows';
 
 const sqliteMigrations: Migration[] = [
 	InitialMigration1588102412422,

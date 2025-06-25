@@ -1,7 +1,7 @@
 import { GlobalConfig } from '@n8n/config';
 import type { IWorkflowDb, Project, WorkflowEntity } from '@n8n/db';
 import type { User } from '@n8n/db';
-import { WorkflowStatisticsRepository } from '@n8n/db';
+import { WorkflowStatisticsRepository, WorkflowRepository } from '@n8n/db';
 import { Container } from '@n8n/di';
 import {
 	QueryFailedError,
@@ -284,6 +284,7 @@ describe('WorkflowStatisticsService', () => {
 				mock(),
 				workflowStatisticsRepository,
 				mock<ExecutionRepository>(),
+				mock<WorkflowRepository>(),
 				ownershipService,
 				userService,
 				eventService,

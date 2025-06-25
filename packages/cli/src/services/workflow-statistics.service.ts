@@ -103,32 +103,97 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 		executionId?: string,
 		userId?: string,
 	): Promise<void> {
+		// pricing information
+		const LLM_PRICING_INFORMATION = {
+			'gpt-3.5-turbo-0125': { Input: 0.0000005, Output: 0.0000015 },
+			'gpt-3.5-turbo': { Input: 0.0000005, Output: 0.0000015 },
+			'chatgpt-4o-latest': { Input: 0.000005, Output: 0.000015 },
+		};
+
 		// Calculate total tokens consumed from the execution data
 		const totalTokens = calculateTotalTokensConsumed(runData);
 
-		// Update the execution with the calculated token count
+		// Update the execution with the calculated token count and corresponding cost incurred.
+		// this is essentially parsing the runData object
 		this.logger.info(`Total tokens consumed: ${totalTokens}`);
+
 		if (executionId && totalTokens > 0) {
+			let totalCost = 0;
 			this.logger.info(`Updating execution ${executionId} with ${totalTokens} tokens consumed`);
+			const resultRunData = runData['data']['resultData']['runData'];
+			for (const [, nodeData] of Object.entries(resultRunData)) {
+				if (nodeData && nodeData[0]?.data?.ai_languageModel) {
+					const ai_languageModel = nodeData[0]?.data?.ai_languageModel;
+					if (ai_languageModel[0]) {
+						// Type guard to check if json has the expected response structure
+						const jsonData = ai_languageModel[0][0]?.json;
+						if (jsonData && typeof jsonData === 'object' && 'response' in jsonData) {
+							const response = (jsonData as any).response;
+							if (response && typeof response === 'object' && 'generations' in response) {
+								const model = response.generations?.[0]?.[0]?.generationInfo?.model_name;
+								const promptTokenUsage = (jsonData as any)?.tokenUsage?.promptTokens;
+								const completionTokenUsage = (jsonData as any)?.tokenUsage?.completionTokens;
+
+								// log the usage
+								this.logger.info(`LLM Model: ${JSON.stringify(model)}`);
+								this.logger.info(`Token Usage: ${JSON.stringify(promptTokenUsage)}`);
+								this.logger.info(`Completion Token Usage: ${JSON.stringify(completionTokenUsage)}`);
+
+								// calculate the cost
+								if (
+									typeof model === 'string' &&
+									promptTokenUsage &&
+									completionTokenUsage &&
+									model.toLowerCase() in LLM_PRICING_INFORMATION
+								) {
+									const inputCost =
+										promptTokenUsage *
+										LLM_PRICING_INFORMATION[
+											model.toLowerCase() as keyof typeof LLM_PRICING_INFORMATION
+										]['Input'];
+									const outputCost =
+										completionTokenUsage *
+										LLM_PRICING_INFORMATION[
+											model.toLowerCase() as keyof typeof LLM_PRICING_INFORMATION
+										]['Output'];
+									const cost = inputCost + outputCost;
+									totalCost += cost;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			this.logger.info(`Total cost: ${totalCost}`);
 
 			// update the token consumed for the execution
 			try {
-				await this.executionRepository.update({ id: executionId }, { tokensConsumed: totalTokens });
+				await this.executionRepository.update(
+					{ id: executionId },
+					{ tokensConsumed: totalTokens, costIncurred: totalCost },
+				);
 			} catch (error) {
 				this.logger.debug('Failed to update tokensConsumed for execution', {
 					executionId,
 					totalTokens,
+					totalCost,
 					error: error.message,
 				});
 			}
 
 			// update the total token consumed by this workflow
 			try {
-				await this.workflowRepository.addTokensConsumedByWorkflow(workflowData.id, totalTokens);
+				await this.workflowRepository.addTokensConsumedAndCostByWorkflow(
+					workflowData.id,
+					totalTokens,
+					totalCost,
+				);
 			} catch (error) {
 				this.logger.debug('Failed to update tokensConsumed for workflow', {
 					workflowId: workflowData.id,
 					totalTokens,
+					totalCost,
 					error: error.message,
 				});
 			}
@@ -136,11 +201,12 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 			// update the total token consumed by this user
 			if (userId) {
 				try {
-					await this.userService.addTokensConsumedByUser(userId, totalTokens);
+					await this.userService.addTokensConsumedAndCostByUser(userId, totalTokens, totalCost);
 				} catch (error) {
 					this.logger.debug('Failed to update tokensConsumed for user', {
 						userId,
 						totalTokens,
+						totalCost,
 						error: error.message,
 					});
 				}

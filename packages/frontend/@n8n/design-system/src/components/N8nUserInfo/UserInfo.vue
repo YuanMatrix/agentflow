@@ -16,8 +16,8 @@ interface UsersInfoProps {
 	disabled?: boolean;
 	settings?: object;
 	isSamlLoginEnabled?: boolean;
-	tokensConsumed?: number;
-	costIncurred?: number;
+	tokensConsumed: number;
+	costIncurred: number;
 }
 
 const props = withDefaults(defineProps<UsersInfoProps>(), {
@@ -33,6 +33,20 @@ const formattedTokensConsumed = computed(() => {
 		return `${(tokens / 1000).toFixed(2)}k`;
 	}
 	return `${(tokens / 1000000).toFixed(2)}M`;
+});
+
+const formattedCostsIncurred = computed(() => {
+	const cost = props?.costIncurred ?? 0;
+	if (cost < 1) {
+		return `${(cost * 100).toFixed(5)} cents`;
+	}
+	if (cost < 1000) {
+		return cost;
+	}
+	if (cost < 1000000) {
+		return `${(cost / 1000).toFixed(2)}k`;
+	}
+	return `${(cost / 1000000).toFixed(2)}M`;
 });
 
 const { t } = useI18n();
@@ -74,7 +88,7 @@ const classes = computed(
 			<div>
 				<N8nText data-test-id="user-email" size="small" color="text-light">
 					{{ t('settings.users.tokensConsumed') }}: {{ formattedTokensConsumed }} |
-					{{ t('settings.users.costIncurred') }}: {{ costIncurred }}
+					{{ t('settings.users.costIncurred') }}: {{ formattedCostsIncurred }}
 				</N8nText>
 			</div>
 		</div>
