@@ -17,7 +17,7 @@ import type {
 import { EventService } from '@/events/event.service';
 import { UserService } from '@/services/user.service';
 import { TypedEmitter } from '@/typed-emitter';
-import { calculateTotalTokensConsumed } from '@/execution-lifecycle/calculate-tokens';
+import { LLM_PRICING_INFORMATION } from '@/constants/LLMPricing';
 
 import { OwnershipService } from './ownership.service';
 
@@ -72,6 +72,8 @@ type WorkflowStatisticsEvents = {
 	};
 };
 
+const DEFAULT_MODEL_FOR_COST_ESTIMATE = 'gpt-4o-mini';
+
 @Service()
 export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEvents> {
 	constructor(
@@ -103,24 +105,14 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 		executionId?: string,
 		userId?: string,
 	): Promise<void> {
-		// pricing information
-		const LLM_PRICING_INFORMATION = {
-			'gpt-3.5-turbo-0125': { Input: 0.0000005, Output: 0.0000015 },
-			'gpt-3.5-turbo': { Input: 0.0000005, Output: 0.0000015 },
-			'chatgpt-4o-latest': { Input: 0.000005, Output: 0.000015 },
-		};
-
 		// Calculate total tokens consumed from the execution data
-		const totalTokens = calculateTotalTokensConsumed(runData);
+		// essentially parsing the runData json object
+		let totalTokens = 0;
+		let totalCost = 0;
 
-		// Update the execution with the calculated token count and corresponding cost incurred.
-		// this is essentially parsing the runData object
-		this.logger.info(`Total tokens consumed: ${totalTokens}`);
-
-		if (executionId && totalTokens > 0) {
-			let totalCost = 0;
-			this.logger.info(`Updating execution ${executionId} with ${totalTokens} tokens consumed`);
+		if (executionId) {
 			const resultRunData = runData['data']['resultData']['runData'];
+
 			for (const [, nodeData] of Object.entries(resultRunData)) {
 				if (nodeData && nodeData[0]?.data?.ai_languageModel) {
 					const ai_languageModel = nodeData[0]?.data?.ai_languageModel;
@@ -130,32 +122,54 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 						if (jsonData && typeof jsonData === 'object' && 'response' in jsonData) {
 							const response = (jsonData as any).response;
 							if (response && typeof response === 'object' && 'generations' in response) {
-								const model = response.generations?.[0]?.[0]?.generationInfo?.model_name;
-								const promptTokenUsage = (jsonData as any)?.tokenUsage?.promptTokens;
-								const completionTokenUsage = (jsonData as any)?.tokenUsage?.completionTokens;
+								const model =
+									response.generations?.[0]?.[0]?.generationInfo?.model_name ??
+									(nodeData?.[0]?.inputOverride?.ai_languageModel?.[0]?.[0]?.json as any)?.options
+										?.model_name;
+								const promptTokenUsage =
+									(jsonData as any)?.tokenUsage?.promptTokens ??
+									(jsonData as any)?.tokenUsageEstimate?.promptTokens;
+								const completionTokenUsage =
+									(jsonData as any)?.tokenUsage?.completionTokens ??
+									(jsonData as any)?.tokenUsageEstimate?.completionTokens;
 
 								// log the usage
-								this.logger.info(`LLM Model: ${JSON.stringify(model)}`);
-								this.logger.info(`Token Usage: ${JSON.stringify(promptTokenUsage)}`);
-								this.logger.info(`Completion Token Usage: ${JSON.stringify(completionTokenUsage)}`);
+								this.logger.info(`LLM Model: ${JSON.stringify(model)}`, {
+									promptTokenUsage,
+									completionTokenUsage,
+								});
 
-								// calculate the cost
+								// update token usage
 								if (
-									typeof model === 'string' &&
-									promptTokenUsage &&
-									completionTokenUsage &&
-									model.toLowerCase() in LLM_PRICING_INFORMATION
+									typeof promptTokenUsage === 'number' &&
+									typeof completionTokenUsage === 'number'
 								) {
+									totalTokens += promptTokenUsage + completionTokenUsage;
+								}
+
+								// calculate the cost.
+								// if the model cannot be extracted, use the default model for cost estimate
+								let modelUsed: String;
+								if (typeof model === 'string' && model.toLowerCase() in LLM_PRICING_INFORMATION) {
+									modelUsed = model.toLowerCase();
+								} else {
+									this.logger.warn(
+										`Model ${model} not found in LLM_PRICING_INFORMATION. Using ${DEFAULT_MODEL_FOR_COST_ESTIMATE} for cost estimate.`,
+									);
+									modelUsed = DEFAULT_MODEL_FOR_COST_ESTIMATE;
+								}
+
+								if (promptTokenUsage && completionTokenUsage) {
 									const inputCost =
 										promptTokenUsage *
-										LLM_PRICING_INFORMATION[
-											model.toLowerCase() as keyof typeof LLM_PRICING_INFORMATION
-										]['Input'];
+										LLM_PRICING_INFORMATION[modelUsed as keyof typeof LLM_PRICING_INFORMATION][
+											'Input'
+										];
 									const outputCost =
 										completionTokenUsage *
-										LLM_PRICING_INFORMATION[
-											model.toLowerCase() as keyof typeof LLM_PRICING_INFORMATION
-										]['Output'];
+										LLM_PRICING_INFORMATION[modelUsed as keyof typeof LLM_PRICING_INFORMATION][
+											'Output'
+										];
 									const cost = inputCost + outputCost;
 									totalCost += cost;
 								}
@@ -165,7 +179,7 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 				}
 			}
 
-			this.logger.info(`Total cost: ${totalCost}`);
+			this.logger.info(`Total cost: ${totalCost}, total tokens: ${totalTokens}`);
 
 			// update the token consumed for the execution
 			try {

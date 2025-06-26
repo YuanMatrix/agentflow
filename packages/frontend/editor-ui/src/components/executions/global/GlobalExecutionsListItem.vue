@@ -63,6 +63,20 @@ const isWaitTillIndefinite = computed(() => {
 	return new Date(props.execution.waitTill).getTime() === WAIT_INDEFINITELY.getTime();
 });
 
+const formattedCostsIncurred = computed(() => {
+	const cost = props?.costIncurred ?? 0;
+	if (cost < 1) {
+		return `${(cost * 100).toFixed(5)} cents`;
+	}
+	if (cost < 1000) {
+		return cost;
+	}
+	if (cost < 1000000) {
+		return `${(cost / 1000).toFixed(2)}k`;
+	}
+	return `${(cost / 1000000).toFixed(2)}M`;
+});
+
 const isRetriable = computed(() => executionHelpers.isExecutionRetriable(props.execution));
 
 const EXECUTION_STATUS = {
@@ -245,7 +259,7 @@ async function handleActionItemClick(commandData: Command) {
 			{{ tokensConsumed }}
 		</td>
 		<td>
-			{{ costIncurred }}
+			{{ formattedCostsIncurred }}
 		</td>
 		<td>
 			<span v-if="execution.id">{{ execution.id }}</span>
