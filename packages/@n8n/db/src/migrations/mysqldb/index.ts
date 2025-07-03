@@ -90,6 +90,7 @@ import { AddWorkflowStatus1748822400000 } from '../common/1748822400000-AddWorkf
 import type { Migration } from '../migration-types';
 import { UpdateParentFolderIdColumn1740445074052 } from '../mysqldb/1740445074052-UpdateParentFolderIdColumn';
 import { AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows1750636800000 } from './1750636800000-AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows';
+import { CreateUsageEntity1751328000000 } from './1751328000000-CreateUsageEntity';
 export const mysqlMigrations: Migration[] = [
 	InitialMigration1588157391238,
 	WebhookModel1592447867632,
@@ -182,4 +183,5 @@ export const mysqlMigrations: Migration[] = [
 	ClearEvaluation1745322634000,
 	AddWorkflowStatus1748822400000,
 	AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows1750636800000,
+	CreateUsageEntity1751328000000,
 ];

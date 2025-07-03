@@ -20,6 +20,7 @@ import { TypedEmitter } from '@/typed-emitter';
 
 import { OwnershipService } from './ownership.service';
 import { getTokensConsumedAndCostIncurred } from './token-usage.utility';
+import { UsageService } from './usage.service';
 
 const isStatusRootExecution = {
 	success: true,
@@ -82,6 +83,7 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 		private readonly ownershipService: OwnershipService,
 		private readonly userService: UserService,
 		private readonly eventService: EventService,
+		private readonly usageService: UsageService,
 	) {
 		super({ captureRejections: true });
 		if ('SKIP_STATISTICS_EVENTS' in process.env) return;
@@ -131,11 +133,33 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 			}
 
 			// update the total token consumed by this user
+			// if the cost incurred is not zero, then we add a usage record
 			if (userId) {
 				try {
 					await this.userService.addTokensConsumedAndCostByUser(userId, totalTokens, totalCost);
 				} catch (error) {
 					this.logger.error(`Failed to update tokensConsumed for user ${userId}`);
+				}
+
+				try {
+					if (totalCost > 0) {
+						await this.usageService.addTransactionRecord({
+							workflowId: workflowData.id,
+							userId,
+							executionDate: runData.startedAt,
+							tokensConsumed: totalTokens,
+							costIncurred: totalCost,
+						});
+					}
+					this.logger.info(`Added usage record for user ${userId} for workflow ${workflowData.id}`);
+					this.logger.info(
+						`Usage record: ${JSON.stringify(await this.usageService.getUsageByWorkflowId(workflowData.id))}`,
+					);
+				} catch (error) {
+					this.logger.error(
+						`Failed to add usage record for user ${userId} for workflow ${workflowData.id}`,
+					);
+					this.logger.error(`Error: ${error}`);
 				}
 			}
 		}
