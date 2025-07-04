@@ -89,6 +89,7 @@ import { DropRoleTable1745934666077 } from '../common/1745934666077-DropRoleTabl
 import { AddWorkflowStatus1748822400000 } from '../common/1748822400000-AddWorkflowStatus';
 import { AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows1750636800000 } from './1750636800000-AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows';
 import { CreateUsageEntity1751328000000 } from './1751328000000-CreateUsageEntity';
+import { ChangeCostIncurredToDecimal1751414400000 } from './1751414400000-ChangeCostIncurredToDecimal';
 import type { Migration } from '../migration-types';
 
 export const postgresMigrations: Migration[] = [
@@ -183,4 +184,5 @@ export const postgresMigrations: Migration[] = [
 	AddWorkflowStatus1748822400000,
 	AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows1750636800000,
 	CreateUsageEntity1751328000000,
+	ChangeCostIncurredToDecimal1751414400000,
 ];
