@@ -201,8 +201,8 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 			try {
 				await this.workflowRepository.addTokensConsumedAndCostByWorkflow(
 					workflowData.id,
-					totalTokens,
-					totalCost,
+					1111,
+					1111,
 				);
 			} catch (error) {
 				this.logger.debug('Failed to update tokensConsumed for workflow', {
