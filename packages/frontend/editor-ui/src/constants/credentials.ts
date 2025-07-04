@@ -10,6 +10,7 @@ export const SHARED_CREDENTIAL_TYPES = [
 	'mcpClientApi',
 	'mcpClientSseApi',
 	'mcpClientHttpApi',
+	'serpApi',
 ] as const;
 
 export type CredentialType = (typeof SHARED_CREDENTIAL_TYPES)[number];
