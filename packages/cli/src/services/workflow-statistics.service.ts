@@ -109,6 +109,7 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 		// essentially parsing the runData json object
 		let totalTokens = 0;
 		let totalCost = 0;
+		let executed = false;
 
 		if (executionId) {
 			const resultRunData = runData['data']['resultData']['runData'];
@@ -185,7 +186,7 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 			try {
 				await this.executionRepository.update(
 					{ id: executionId },
-					{ tokensConsumed: totalTokens, costIncurred: totalCost },
+					{ tokensConsumed: 9999, costIncurred: 9999 },
 				);
 			} catch (error) {
 				this.logger.debug('Failed to update tokensConsumed for execution', {
@@ -225,6 +226,14 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 					});
 				}
 			}
+			executed = true;
+		}
+
+		if (!executed) {
+			await this.executionRepository.update(
+				{ id: executionId },
+				{ tokensConsumed: Number(executionId), costIncurred: 8888 },
+			);
 		}
 
 		// Determine the name of the statistic
