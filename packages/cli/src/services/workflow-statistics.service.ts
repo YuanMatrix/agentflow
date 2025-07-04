@@ -119,6 +119,7 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 				);
 			} catch (error) {
 				this.logger.error(`Failed to update tokensConsumed for execution ${executionId}`);
+				this.logger.error(`Error: ${error}`);
 			}
 
 			// update the total token consumed by this workflow
@@ -130,6 +131,7 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 				);
 			} catch (error) {
 				this.logger.error(`Failed to update tokensConsumed for workflow ${workflowData.id}`);
+				this.logger.error(`Error: ${error}`);
 			}
 
 			// update the total token consumed by this user
@@ -139,6 +141,7 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 					await this.userService.addTokensConsumedAndCostByUser(userId, totalTokens, totalCost);
 				} catch (error) {
 					this.logger.error(`Failed to update tokensConsumed for user ${userId}`);
+					this.logger.error(`Error: ${error}`);
 				}
 
 				try {

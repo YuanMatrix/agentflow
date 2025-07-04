@@ -22,24 +22,32 @@ export class ChangeCostIncurredToDecimal1751414400000 implements ReversibleMigra
 			usageEntityTable?.findColumnByName('costIncurred');
 
 		if (costIncurredColumnExistsInUserTable) {
+			// First set all values to 0
+			await queryRunner.query(`UPDATE ${tablePrefix}user SET costIncurred = 0`);
 			await queryRunner.query(
 				`ALTER TABLE ${tablePrefix}user MODIFY COLUMN costIncurred DECIMAL(20, 10) DEFAULT 0 NOT NULL`,
 			);
 		}
 
 		if (costIncurredColumnExistsInExecutionEntityTable) {
+			// First set all values to 0
+			await queryRunner.query(`UPDATE ${tablePrefix}execution_entity SET costIncurred = 0`);
 			await queryRunner.query(
 				`ALTER TABLE ${tablePrefix}execution_entity MODIFY COLUMN costIncurred DECIMAL(20, 10) DEFAULT 0 NOT NULL`,
 			);
 		}
 
 		if (costIncurredColumnExistsInWorkflowEntityTable) {
+			// First set all values to 0
+			await queryRunner.query(`UPDATE ${tablePrefix}workflow_entity SET costIncurred = 0`);
 			await queryRunner.query(
 				`ALTER TABLE ${tablePrefix}workflow_entity MODIFY COLUMN costIncurred DECIMAL(20, 10) DEFAULT 0 NOT NULL`,
 			);
 		}
 
 		if (costIncurredColumnExistsInUsageEntityTable) {
+			// First set all values to 0
+			await queryRunner.query(`UPDATE ${tablePrefix}usage_entity SET costIncurred = 0`);
 			await queryRunner.query(
 				`ALTER TABLE ${tablePrefix}usage_entity MODIFY COLUMN costIncurred DECIMAL(20, 10) DEFAULT 0 NOT NULL`,
 			);

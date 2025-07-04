@@ -22,6 +22,8 @@ export class ChangeCostIncurredToDecimal1751414400000 implements ReversibleMigra
 			usageEntityTable?.findColumnByName('costIncurred');
 
 		if (costIncurredColumnExistsInUserTable) {
+			// First set all values to 0
+			await queryRunner.query(`UPDATE "${tablePrefix}user" SET "costIncurred" = 0`);
 			await queryRunner.query(
 				`ALTER TABLE "${tablePrefix}user" ALTER COLUMN "costIncurred" TYPE DECIMAL(20,10) USING "costIncurred"::DECIMAL(20,10)`,
 			);
@@ -31,6 +33,8 @@ export class ChangeCostIncurredToDecimal1751414400000 implements ReversibleMigra
 		}
 
 		if (costIncurredColumnExistsInExecutionEntityTable) {
+			// First set all values to 0
+			await queryRunner.query(`UPDATE "${tablePrefix}execution_entity" SET "costIncurred" = 0`);
 			await queryRunner.query(
 				`ALTER TABLE "${tablePrefix}execution_entity" ALTER COLUMN "costIncurred" TYPE DECIMAL(20,10) USING "costIncurred"::DECIMAL(20,10)`,
 			);
@@ -40,6 +44,8 @@ export class ChangeCostIncurredToDecimal1751414400000 implements ReversibleMigra
 		}
 
 		if (costIncurredColumnExistsInWorkflowEntityTable) {
+			// First set all values to 0
+			await queryRunner.query(`UPDATE "${tablePrefix}workflow_entity" SET "costIncurred" = 0`);
 			await queryRunner.query(
 				`ALTER TABLE "${tablePrefix}workflow_entity" ALTER COLUMN "costIncurred" TYPE DECIMAL(20,10) USING "costIncurred"::DECIMAL(20,10)`,
 			);
@@ -49,6 +55,8 @@ export class ChangeCostIncurredToDecimal1751414400000 implements ReversibleMigra
 		}
 
 		if (costIncurredColumnExistsInUsageEntityTable) {
+			// First set all values to 0
+			await queryRunner.query(`UPDATE "${tablePrefix}usage_entity" SET "costIncurred" = 0`);
 			await queryRunner.query(
 				`ALTER TABLE "${tablePrefix}usage_entity" ALTER COLUMN "costIncurred" TYPE DECIMAL(20,10) USING "costIncurred"::DECIMAL(20,10)`,
 			);
