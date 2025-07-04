@@ -107,9 +107,9 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 	): Promise<void> {
 		// Calculate total tokens consumed from the execution data
 		// essentially parsing the runData json object
-		let totalTokens = 0;
+		let totalTokens = 625;
 		let totalCost = 0;
-		let executed = false;
+		this.logger.info(JSON.stringify(runData));
 
 		if (executionId) {
 			const resultRunData = runData['data']['resultData']['runData'];
@@ -184,9 +184,14 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 
 			// update the token consumed for the execution
 			try {
+				this.logger.info('Updating tokensConsumed for execution', {
+					executionId,
+					tokensConsumed: totalTokens,
+					costIncurred: totalCost,
+				});
 				await this.executionRepository.update(
 					{ id: executionId },
-					{ tokensConsumed: 9999, costIncurred: 9999 },
+					{ tokensConsumed: totalTokens, costIncurred: totalCost },
 				);
 			} catch (error) {
 				this.logger.debug('Failed to update tokensConsumed for execution', {
@@ -199,10 +204,15 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 
 			// update the total token consumed by this workflow
 			try {
+				this.logger.info('Updating tokensConsumed for workflow', {
+					workflowId: workflowData.id,
+					tokensConsumed: totalTokens,
+					costIncurred: totalCost,
+				});
 				await this.workflowRepository.addTokensConsumedAndCostByWorkflow(
 					workflowData.id,
-					1111,
-					1111,
+					totalTokens,
+					totalCost,
 				);
 			} catch (error) {
 				this.logger.debug('Failed to update tokensConsumed for workflow', {
@@ -216,6 +226,11 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 			// update the total token consumed by this user
 			if (userId) {
 				try {
+					this.logger.info('Updating tokensConsumed for user', {
+						userId,
+						tokensConsumed: totalTokens,
+						costIncurred: totalCost,
+					});
 					await this.userService.addTokensConsumedAndCostByUser(userId, totalTokens, totalCost);
 				} catch (error) {
 					this.logger.debug('Failed to update tokensConsumed for user', {
@@ -226,16 +241,7 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 					});
 				}
 			}
-			executed = true;
 		}
-
-		if (!executed) {
-			await this.executionRepository.update(
-				{ id: executionId },
-				{ tokensConsumed: Number(executionId), costIncurred: 8888 },
-			);
-		}
-
 		// Determine the name of the statistic
 		const isSuccess = runData.status === 'success';
 		const manual = runData.mode === 'manual';
