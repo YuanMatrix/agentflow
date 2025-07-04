@@ -187,11 +187,14 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 				this.logger.info(
 					`Updating tokensConsumed for execution - executionId: ${executionId}, tokensConsumed: ${totalTokens}, costIncurred: ${totalCost}`,
 				);
+				let execution = await this.executionRepository.findBy({ id: executionId });
+				this.logger.info('execution: ' + JSON.stringify(execution));
 				await this.executionRepository.update(
 					{ id: executionId },
-					{ tokensConsumed: totalTokens, costIncurred: totalCost },
+					{ tokensConsumed: totalTokens, costIncurred: 2 },
 				);
 			} catch (error) {
+				this.logger.info(JSON.stringify(error));
 				this.logger.debug('Failed to update tokensConsumed for execution', {
 					executionId,
 					totalTokens,
@@ -208,9 +211,10 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 				await this.workflowRepository.addTokensConsumedAndCostByWorkflow(
 					workflowData.id,
 					totalTokens,
-					totalCost,
+					2,
 				);
 			} catch (error) {
+				this.logger.info(JSON.stringify(error));
 				this.logger.debug('Failed to update tokensConsumed for workflow', {
 					workflowId: workflowData.id,
 					totalTokens,
@@ -225,8 +229,9 @@ export class WorkflowStatisticsService extends TypedEmitter<WorkflowStatisticsEv
 					this.logger.info(
 						`Updating tokensConsumed for user - userId: ${userId}, tokensConsumed: ${totalTokens}, costIncurred: ${totalCost}`,
 					);
-					await this.userService.addTokensConsumedAndCostByUser(userId, totalTokens, totalCost);
+					await this.userService.addTokensConsumedAndCostByUser(userId, totalTokens, 2);
 				} catch (error) {
+					this.logger.info(JSON.stringify(error));
 					this.logger.debug('Failed to update tokensConsumed for user', {
 						userId,
 						totalTokens,

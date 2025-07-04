@@ -9,13 +9,13 @@ type DbLoggingOptions = z.infer<typeof dbLoggingOptionsSchema>;
 class LoggingConfig {
 	/** Whether database logging is enabled. */
 	@Env('DB_LOGGING_ENABLED')
-	enabled: boolean = false;
+	enabled: boolean = true;
 
 	/**
 	 * Database logging level. Requires `DB_LOGGING_MAX_EXECUTION_TIME` to be higher than `0`.
 	 */
 	@Env('DB_LOGGING_OPTIONS', dbLoggingOptionsSchema)
-	options: DbLoggingOptions = 'error';
+	options: DbLoggingOptions = 'query';
 
 	/**
 	 * Only queries that exceed this time (ms) will be logged. Set `0` to disable.
