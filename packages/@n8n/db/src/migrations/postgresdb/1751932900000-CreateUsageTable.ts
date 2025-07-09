@@ -1,7 +1,7 @@
 import type { MigrationContext, ReversibleMigration } from '../migration-types';
 
-export class SetAllTokensAndCostDataToZero1751414600000 implements ReversibleMigration {
-	name = 'SetAllTokensAndCostDataToZero1751414600000';
+export class CreateUsageTable1751932900000 implements ReversibleMigration {
+	name = 'CreateUsageTable1751932900000';
 
 	public async up({ queryRunner, tablePrefix }: MigrationContext): Promise<void> {
 		// Drop and recreate usage_entity table
@@ -19,6 +19,7 @@ export class SetAllTokensAndCostDataToZero1751414600000 implements ReversibleMig
 				')',
 		);
 
+		// Create indexes to match entity definition and other database implementations
 		await queryRunner.query(
 			`CREATE INDEX "IDX_${tablePrefix}usage_entity_userId_executionDate" ON "${tablePrefix}usage_entity" ("userId", "executionDate")`,
 		);
@@ -26,26 +27,9 @@ export class SetAllTokensAndCostDataToZero1751414600000 implements ReversibleMig
 		await queryRunner.query(
 			`CREATE UNIQUE INDEX "IDX_${tablePrefix}usage_entity_workflowId_userId_executionDate" ON "${tablePrefix}usage_entity" ("workflowId", "userId", "executionDate")`,
 		);
-
-		// Reset user table
-		await queryRunner.query(
-			`UPDATE "${tablePrefix}user" SET "tokensConsumed" = 0, "costIncurred" = 0.0000000000`,
-		);
-
-		// Reset workflow_entity table
-		await queryRunner.query(
-			`UPDATE "${tablePrefix}workflow_entity" SET "tokensConsumed" = 0, "costIncurred" = 0.0000000000`,
-		);
-
-		// Reset execution_entity table
-		await queryRunner.query(
-			`UPDATE "${tablePrefix}execution_entity" SET "tokensConsumed" = 0, "costIncurred" = 0.0000000000`,
-		);
 	}
 
-	public async down(): Promise<void> {
-		// Since we're resetting to 0 and recreating the table, there's no way to restore the previous values
-		// The down migration is a no-op
-		return;
+	public async down({ queryRunner, tablePrefix }: MigrationContext): Promise<void> {
+		await queryRunner.query(`DROP TABLE IF EXISTS "${tablePrefix}usage_entity" CASCADE`);
 	}
 }

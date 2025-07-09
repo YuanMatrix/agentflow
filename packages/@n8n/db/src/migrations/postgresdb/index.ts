@@ -87,10 +87,8 @@ import { AddWorkflowStatisticsRootCount1745587087521 } from '../common/174558708
 import { AddWorkflowArchivedColumn1745934666076 } from '../common/1745934666076-AddWorkflowArchivedColumn';
 import { DropRoleTable1745934666077 } from '../common/1745934666077-DropRoleTable';
 import { AddWorkflowStatus1748822400000 } from '../common/1748822400000-AddWorkflowStatus';
-import { AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows1750636800000 } from './1750636800000-AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows';
-import { CreateUsageEntity1751328000000 } from './1751328000000-CreateUsageEntity';
-import { ChangeCostIncurredToDecimal1751414400000 } from './1751414400000-ChangeCostIncurredToDecimal';
-import { SetAllTokensAndCostDataToZero1751414600000 } from './1751414600000-SetAllTokensAndCostDataToZero';
+import { AddTokenAndCotUsedByMemberAndExecutionsAndWorkflows1751932800000 } from './1751932800000-AddTokenAndCotUsedByMemberAndExecutionsAndWorkflows';
+import { CreateUsageTable1751932900000 } from './1751932900000-CreateUsageTable';
 import type { Migration } from '../migration-types';
 
 export const postgresMigrations: Migration[] = [
@@ -183,8 +181,6 @@ export const postgresMigrations: Migration[] = [
 	DropRoleTable1745934666077,
 	ClearEvaluation1745322634000,
 	AddWorkflowStatus1748822400000,
-	AddTokenAndCostUsedByMemberAndExecutionsAndWorkflows1750636800000,
-	CreateUsageEntity1751328000000,
-	ChangeCostIncurredToDecimal1751414400000,
-	SetAllTokensAndCostDataToZero1751414600000,
+	AddTokenAndCotUsedByMemberAndExecutionsAndWorkflows1751932800000,
+	CreateUsageTable1751932900000,
 ];
