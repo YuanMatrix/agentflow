@@ -2,8 +2,6 @@ import { IRun } from 'n8n-workflow';
 import { LLM_PRICING_INFORMATION } from '@/constants/LLMPricing';
 
 export function getTokensConsumedAndCostIncurred(runData: IRun) {
-	const DEFAULT_MODEL_FOR_COST_ESTIMATE = 'gpt-4o-mini';
-
 	// Calculate total tokens consumed from the execution data
 	// essentially parsing the runData json object
 	let totalTokens = 0;
@@ -32,6 +30,14 @@ export function getTokensConsumedAndCostIncurred(runData: IRun) {
 								(nodeData?.[0]?.inputOverride?.ai_languageModel?.[0]?.[0]?.json as any)?.options
 									?.model_name;
 
+							// calculate the cost.
+							let modelUsed: String;
+							if (typeof model === 'string' && model.toLowerCase() in LLM_PRICING_INFORMATION) {
+								modelUsed = model.toLowerCase();
+							} else {
+								continue; // if the model cannot be extracted, skip token & cost calculation for now
+							}
+
 							// the tokens may be in tokenUsage property or in tokenUsageEstimate property
 							const promptTokenUsage =
 								(jsonData as any)?.tokenUsage?.promptTokens ??
@@ -46,15 +52,6 @@ export function getTokensConsumedAndCostIncurred(runData: IRun) {
 								typeof completionTokenUsage === 'number'
 							) {
 								totalTokens += promptTokenUsage + completionTokenUsage;
-							}
-
-							// calculate the cost.
-							// if the model cannot be extracted, use the default model for cost estimate
-							let modelUsed: String;
-							if (typeof model === 'string' && model.toLowerCase() in LLM_PRICING_INFORMATION) {
-								modelUsed = model.toLowerCase();
-							} else {
-								modelUsed = DEFAULT_MODEL_FOR_COST_ESTIMATE;
 							}
 
 							if (promptTokenUsage && completionTokenUsage) {
@@ -90,25 +87,19 @@ export function getTokensConsumedAndCostIncurred(runData: IRun) {
 				typeof promptTokens === 'number' &&
 				typeof model === 'string'
 			) {
-				totalTokens += completionTokens + promptTokens;
-
 				// check if model exists in pricing information
 				const modelKey = model.toLowerCase();
-				if (modelKey in LLM_PRICING_INFORMATION) {
-					const inputCost =
-						promptTokens *
-						LLM_PRICING_INFORMATION[modelKey as keyof typeof LLM_PRICING_INFORMATION]['Input'];
-					const outputCost =
-						completionTokens *
-						LLM_PRICING_INFORMATION[modelKey as keyof typeof LLM_PRICING_INFORMATION]['Output'];
-					totalCost += inputCost + outputCost;
-				} else {
-					const inputCost =
-						promptTokens * LLM_PRICING_INFORMATION[DEFAULT_MODEL_FOR_COST_ESTIMATE]['Input'];
-					const outputCost =
-						completionTokens * LLM_PRICING_INFORMATION[DEFAULT_MODEL_FOR_COST_ESTIMATE]['Output'];
-					totalCost += inputCost + outputCost;
+				if (!(modelKey in LLM_PRICING_INFORMATION)) {
+					continue; // if the model does not exist in pricing information, skip token & cost calculation for now
 				}
+				totalTokens += completionTokens + promptTokens;
+				const inputCost =
+					promptTokens *
+					LLM_PRICING_INFORMATION[modelKey as keyof typeof LLM_PRICING_INFORMATION]['Input'];
+				const outputCost =
+					completionTokens *
+					LLM_PRICING_INFORMATION[modelKey as keyof typeof LLM_PRICING_INFORMATION]['Output'];
+				totalCost += inputCost + outputCost;
 			}
 		}
 	}
