@@ -9,6 +9,7 @@ import type { ChatMessage } from '@n8n/chat/types';
 defineProps<{
 	messages: ChatMessage[];
 	emptyText?: string;
+	executedNodes?: string[];
 }>();
 
 defineSlots<{
@@ -57,6 +58,16 @@ watch(
 			</Message>
 		</template>
 		<MessageTyping v-if="waitingForResponse" />
+		<div
+			v-if="waitingForResponse && executedNodes && executedNodes.length > 0"
+			class="executed-nodes"
+		>
+			<div class="executed-nodes-list">
+				<span v-for="nodeName in executedNodes" :key="nodeName" class="executed-node">
+					{{ nodeName }}
+				</span>
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -106,5 +117,28 @@ watch(
 	.emptyIcon {
 		zoom: 1.5;
 	}
+}
+
+.executed-nodes {
+	margin-top: var(--spacing-2xs);
+	font-size: var(--font-size-2xs);
+	color: var(--color-text-dark);
+}
+
+.executed-nodes-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--spacing-2xs);
+}
+
+.executed-node {
+	font-size: var(--font-size-2xs);
+	color: var(--color-text-dark);
+	padding: var(--spacing-4xs) var(--spacing-2xs);
+	background: var(--color-primary-tint-3);
+	border-radius: var(--border-radius-small);
+	border: 1px solid var(--color-primary-tint-2);
+	white-space: nowrap;
+	font-weight: var(--font-weight-medium);
 }
 </style>
