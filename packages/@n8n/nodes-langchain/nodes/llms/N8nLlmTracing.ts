@@ -16,7 +16,7 @@ import { NodeConnectionTypes, NodeError, NodeOperationError } from 'n8n-workflow
 
 import { logAiEvent } from '@utils/helpers';
 
-const openmeter = new OpenMeter({ baseUrl: 'http://127.0.0.1:8888' });
+const openmeter = new OpenMeter({ baseUrl: process.env.OPENMETER_URL });
 
 type TokensUsageParser = (llmOutput: LLMResult['llmOutput']) => {
 	completionTokens: number;
