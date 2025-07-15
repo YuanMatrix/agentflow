@@ -47,6 +47,7 @@ const workflowsStore = useWorkflowsStore();
 
 // Use the executingNode array to show currently executing nodes
 const currentlyExecutingNodes = computed(() => workflowsStore.executingNode);
+const executingOutput = computed(() => workflowsStore.executingOutput);
 
 const previousMessageIndex = ref(0);
 
@@ -244,6 +245,7 @@ watch(
 			<MessagesList
 				:messages="messages"
 				:executed-nodes="currentlyExecutingNodes"
+				:executing-output="executingOutput"
 				:class="$style.messages"
 				:empty-text="
 					isNewLogsEnabled ? locale.baseText('chat.window.chat.emptyChatMessage.v2') : undefined

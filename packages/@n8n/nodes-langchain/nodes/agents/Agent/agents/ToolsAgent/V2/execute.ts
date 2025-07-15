@@ -34,21 +34,16 @@ class StreamingCallbackHandler extends BaseCallbackHandler {
 		this.nodeName = nodeName;
 	}
 
-	async handleLLMNewToken(token: string): Promise<void> {
-		// Stream tokens to terminal in real-time
-		console.log(`[Workflow "${this.workflowId}"][Node "${this.nodeName}"] 🔥 Token: "${token}"`);
-	}
-
 	async handleLLMStart(): Promise<void> {
-		console.log(
-			`[Workflow "${this.workflowId}"][Node "${this.nodeName}"] 🎯 LLM started generating...`,
-		);
+		// console.log(
+		// `[Workflow "${this.workflowId}"][Node "${this.nodeName}"] 🎯 LLM started generating...`,
+		// );
 	}
 
 	async handleLLMEnd(): Promise<void> {
-		console.log(
-			`[Workflow "${this.workflowId}"][Node "${this.nodeName}"] ✅ LLM generation complete`,
-		);
+		// console.log(
+		// `[Workflow "${this.workflowId}"][Node "${this.nodeName}"] ✅ LLM generation complete`,
+		// );
 	}
 }
 
@@ -160,21 +155,10 @@ export async function toolsAgentExecute(this: IExecuteFunctions): Promise<INodeE
 
 			for await (const chunk of stream) {
 				if (chunk && typeof chunk === 'object') {
-					// Stream output to terminal in real-time
-					console.log(
-						`[Workflow "${workflowId}"][Node "${nodeName}"] 📦 Agent Chunk:`,
-						JSON.stringify(chunk, null, 2),
-					);
-
 					// Merge each chunk into the final response
 					finalResponse = { ...finalResponse, ...chunk };
 				}
 			}
-
-			console.log(
-				`[Workflow "${workflowId}"][Node "${nodeName}"] ✅ Agent stream complete. Final response:`,
-				JSON.stringify(finalResponse, null, 2),
-			);
 
 			return finalResponse;
 		});

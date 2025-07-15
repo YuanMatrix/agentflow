@@ -86,16 +86,26 @@ function hookFunctionsPush(
 			pushRef,
 		);
 	});
-	hooks.addHandler('nodeExecuteAfter', function (nodeName, data) {
+	hooks.addHandler('nodeExecuteAfter', function (nodeName, data, executionData, intermediateText) {
 		const { executionId } = this;
 		// Push data to session which started workflow after each rendered node
 		logger.debug(`Executing hook on node "${nodeName}" (hookFunctionsPush)`, {
 			executionId,
 			pushRef,
 			workflowId: this.workflowData.id,
+			intermediateText,
 		});
 
-		pushInstance.send({ type: 'nodeExecuteAfter', data: { executionId, nodeName, data } }, pushRef);
+		pushInstance.send(
+			{
+				type: 'nodeExecuteAfter',
+				data: { executionId, nodeName, data, intermediateText: JSON.stringify(intermediateText) },
+			},
+			pushRef,
+		);
+		logger.info(
+			`execution data updated, node name: ${JSON.stringify(nodeName)}, intermediate text: ${JSON.stringify(intermediateText)}`,
+		);
 	});
 	hooks.addHandler('workflowExecuteBefore', function (_workflow, data) {
 		const { executionId } = this;

@@ -94,6 +94,7 @@ import { useNodeHelpers } from '@/composables/useNodeHelpers';
 import { useUsersStore } from '@/stores/users.store';
 import { updateCurrentUserSettings } from '@/api/users';
 import { useExecutingNode } from '@/composables/useExecutingNode';
+import { useExecutingOutput } from '@/composables/useExecutingOutput';
 import type { NodeExecuteBefore } from '@n8n/api-types/push/execution';
 import { useLogsStore } from './logs.store';
 
@@ -165,6 +166,8 @@ export const useWorkflowsStore = defineStore(STORES.WORKFLOWS, () => {
 		isNodeExecuting,
 		clearNodeExecutionQueue,
 	} = useExecutingNode();
+
+	const { executingOutput, concatenateOutput } = useExecutingOutput();
 
 	const workflowName = computed(() => workflow.value.name);
 
@@ -2042,6 +2045,8 @@ export const useWorkflowsStore = defineStore(STORES.WORKFLOWS, () => {
 		findNodeByPartialId,
 		getPartialIdForNode,
 		getNewWorkflowDataAndMakeShareable,
+		executingOutput,
+		concatenateOutput,
 		totalWorkflowCount,
 	};
 });

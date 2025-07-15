@@ -10,6 +10,7 @@ defineProps<{
 	messages: ChatMessage[];
 	emptyText?: string;
 	executedNodes?: string[];
+	executingOutput?: string;
 }>();
 
 defineSlots<{
@@ -58,6 +59,7 @@ watch(
 			</Message>
 		</template>
 		<MessageTyping v-if="waitingForResponse" />
+		<span class="executed-output">{{ executingOutput }}</span>
 		<div
 			v-if="waitingForResponse && executedNodes && executedNodes.length > 0"
 			class="executed-nodes"

@@ -297,11 +297,18 @@ export class SupplyDataContext extends BaseExecuteContext implements ISupplyData
 			// Outputs
 			taskData.executionTime = Date.now() - taskData.startTime;
 
+			// parse the text should there be any
+			const responseData = taskData?.data?.ai_languageModel?.[0]?.[0]?.json as any;
+			const gens0 = responseData?.response?.generations?.[0];
+			const lastTextChunk = gens0?.length ? gens0[gens0.length - 1]?.text : undefined;
+
 			await additionalData.hooks?.runHook('nodeExecuteAfter', [
 				nodeName,
 				taskData,
 				this.runExecutionData,
+				lastTextChunk,
 			]);
+			this.logger.info(JSON.stringify(taskData));
 
 			if (get(runExecutionData, 'executionData.metadata', undefined) === undefined) {
 				runExecutionData.executionData!.metadata = {};
