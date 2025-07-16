@@ -18,6 +18,8 @@ import { logAiEvent } from '@utils/helpers';
 
 const openmeter = new OpenMeter({ baseUrl: process.env.OPENMETER_URL });
 
+// const openmeter = new OpenMeter({ baseUrl: 'http://127.0.0.1:8888' });
+
 type TokensUsageParser = (llmOutput: LLMResult['llmOutput']) => {
 	completionTokens: number;
 	promptTokens: number;
@@ -221,7 +223,21 @@ export class N8nLlmTracing extends BaseCallbackHandler {
 				},
 			};
 
-			await openmeter.events.ingest([inputEvent, outputEvent]);
+			const totalEvent: Event = {
+				specversion: '1.0',
+				id: `${runId}-total`,
+				source: 'n8n',
+				type: 'prompt',
+				subject,
+				time: new Date(),
+				data: {
+					tokens: tokenUsage.totalTokens,
+					model,
+					type: 'system',
+				},
+			};
+
+			await openmeter.events.ingest([inputEvent, outputEvent, totalEvent]);
 		} catch (err) {
 			console.error('[OpenMeter] Failed to send token usage events:', err);
 		}
