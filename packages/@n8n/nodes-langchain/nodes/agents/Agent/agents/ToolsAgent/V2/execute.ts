@@ -34,17 +34,9 @@ class StreamingCallbackHandler extends BaseCallbackHandler {
 		this.nodeName = nodeName;
 	}
 
-	async handleLLMStart(): Promise<void> {
-		// console.log(
-		// `[Workflow "${this.workflowId}"][Node "${this.nodeName}"] 🎯 LLM started generating...`,
-		// );
-	}
+	async handleLLMStart(): Promise<void> {}
 
-	async handleLLMEnd(): Promise<void> {
-		// console.log(
-		// `[Workflow "${this.workflowId}"][Node "${this.nodeName}"] ✅ LLM generation complete`,
-		// );
-	}
+	async handleLLMEnd(): Promise<void> {}
 }
 
 /* -----------------------------------------------------------
@@ -150,8 +142,6 @@ export async function toolsAgentExecute(this: IExecuteFunctions): Promise<INodeE
 
 			// Collect all streaming results
 			let finalResponse: any = {};
-
-			console.log(`[Workflow "${workflowId}"][Node "${nodeName}"] 🔄 Starting agent stream...`);
 
 			for await (const chunk of stream) {
 				if (chunk && typeof chunk === 'object') {

@@ -167,7 +167,7 @@ export const useWorkflowsStore = defineStore(STORES.WORKFLOWS, () => {
 		clearNodeExecutionQueue,
 	} = useExecutingNode();
 
-	const { executingOutput, concatenateOutput } = useExecutingOutput();
+	const { executingOutput, concatenateOutput, clearOutput } = useExecutingOutput();
 
 	const workflowName = computed(() => workflow.value.name);
 
@@ -1750,6 +1750,8 @@ export const useWorkflowsStore = defineStore(STORES.WORKFLOWS, () => {
 	}
 
 	async function runWorkflow(startRunData: IStartRunData): Promise<IExecutionPushResponse> {
+		clearOutput(); // clear the LLM output of previous execution, if there is any
+
 		if (startRunData.workflowData.settings === null) {
 			startRunData.workflowData.settings = undefined;
 		}

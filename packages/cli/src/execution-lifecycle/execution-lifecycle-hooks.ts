@@ -87,6 +87,8 @@ function hookFunctionsPush(
 		);
 	});
 	hooks.addHandler('nodeExecuteAfter', function (nodeName, data, executionData, intermediateText) {
+		if (executionData) {
+		} // executionData is a parameter that must be kept but is not useful, so I added this statement to avaoid typecheck issues
 		const { executionId } = this;
 		// Push data to session which started workflow after each rendered node
 		logger.debug(`Executing hook on node "${nodeName}" (hookFunctionsPush)`, {
@@ -99,12 +101,9 @@ function hookFunctionsPush(
 		pushInstance.send(
 			{
 				type: 'nodeExecuteAfter',
-				data: { executionId, nodeName, data, intermediateText: JSON.stringify(intermediateText) },
+				data: { executionId, nodeName, data, intermediateText },
 			},
 			pushRef,
-		);
-		logger.info(
-			`execution data updated, node name: ${JSON.stringify(nodeName)}, intermediate text: ${JSON.stringify(intermediateText)}`,
 		);
 	});
 	hooks.addHandler('workflowExecuteBefore', function (_workflow, data) {

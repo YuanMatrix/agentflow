@@ -5,6 +5,7 @@ import Message from '@n8n/chat/components/Message.vue';
 import MessageTyping from '@n8n/chat/components/MessageTyping.vue';
 import { useChat } from '@n8n/chat/composables';
 import type { ChatMessage } from '@n8n/chat/types';
+import StreamingOutput from './StreamingOutput.vue';
 
 defineProps<{
 	messages: ChatMessage[];
@@ -59,11 +60,15 @@ watch(
 			</Message>
 		</template>
 		<MessageTyping v-if="waitingForResponse" />
-		<span class="executed-output">{{ executingOutput }}</span>
+		<!-- <span class="executed-output">{{ executingOutput }}</span> -->
 		<div
 			v-if="waitingForResponse && executedNodes && executedNodes.length > 0"
 			class="executed-nodes"
 		>
+			<StreamingOutput
+				v-if="executingOutput && executingOutput.length >= 1"
+				:message="executingOutput"
+			/>
 			<div class="executed-nodes-list">
 				<span v-for="nodeName in executedNodes" :key="nodeName" class="executed-node">
 					{{ nodeName }}

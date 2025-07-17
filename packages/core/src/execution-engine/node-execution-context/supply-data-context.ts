@@ -308,7 +308,6 @@ export class SupplyDataContext extends BaseExecuteContext implements ISupplyData
 				this.runExecutionData,
 				lastTextChunk,
 			]);
-			this.logger.info(JSON.stringify(taskData));
 
 			if (get(runExecutionData, 'executionData.metadata', undefined) === undefined) {
 				runExecutionData.executionData!.metadata = {};
