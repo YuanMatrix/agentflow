@@ -374,8 +374,6 @@ export class LmChatOpenAi implements INodeType {
 			configuration,
 			callbacks: [new N8nLlmTracing(this)],
 			modelKwargs,
-			streaming: true,
-			streamUsage: true,
 			onFailedAttempt: makeN8nLlmFailedAttemptHandler(this, openAiFailedAttemptHandler),
 		});
 

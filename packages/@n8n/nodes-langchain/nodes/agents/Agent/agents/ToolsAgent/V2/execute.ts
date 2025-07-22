@@ -4,7 +4,6 @@ import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
 import { omit } from 'lodash';
 import { jsonParse, NodeOperationError, sleep } from 'n8n-workflow';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
-import { BaseCallbackHandler } from '@langchain/core/callbacks/base';
 
 import { getPromptInputByType } from '@utils/helpers';
 import { getOptionalOutputParser } from '@utils/output_parsers/N8nOutputParser';
@@ -19,25 +18,6 @@ import {
 	preparePrompt,
 } from '../common';
 import { SYSTEM_MESSAGE } from '../prompt';
-
-/**
- * Custom callback handler for real-time token streaming
- */
-class StreamingCallbackHandler extends BaseCallbackHandler {
-	name = 'StreamingCallbackHandler';
-	workflowId: string;
-	nodeName: string;
-
-	constructor(workflowId: string, nodeName: string) {
-		super();
-		this.workflowId = workflowId;
-		this.nodeName = nodeName;
-	}
-
-	async handleLLMStart(): Promise<void> {}
-
-	async handleLLMEnd(): Promise<void> {}
-}
 
 /* -----------------------------------------------------------
    Main Executor Function
@@ -66,10 +46,6 @@ export async function toolsAgentExecute(this: IExecuteFunctions): Promise<INodeE
 	) as number;
 	const memory = await getOptionalMemory(this);
 	const model = await getChatModel(this);
-
-	// Get workflow and node info for streaming
-	const workflowId = this.getWorkflow().id ?? 'unknown';
-	const nodeName = this.getNode().name;
 
 	for (let i = 0; i < items.length; i += batchSize) {
 		const batch = items.slice(i, i + batchSize);
@@ -101,9 +77,6 @@ export async function toolsAgentExecute(this: IExecuteFunctions): Promise<INodeE
 			});
 			const prompt: ChatPromptTemplate = preparePrompt(messages);
 
-			// Create streaming callback handler
-			const streamingCallback = new StreamingCallbackHandler(workflowId, nodeName);
-
 			// Create the base agent that calls tools.
 			const agent = createToolCallingAgent({
 				llm: model,
@@ -126,31 +99,16 @@ export async function toolsAgentExecute(this: IExecuteFunctions): Promise<INodeE
 				maxIterations: options.maxIterations ?? 10,
 			});
 
-			// Stream the executor with the given input and system message.
-			const stream = await executor.stream(
+			// Invoke the executor with the given input and system message.
+			return await executor.invoke(
 				{
 					input,
 					system_message: options.systemMessage ?? SYSTEM_MESSAGE,
 					formatting_instructions:
 						'IMPORTANT: For your response to user, you MUST use the `format_final_json_response` tool with your complete answer formatted according to the required schema. Do not attempt to format the JSON manually - always use this tool. Your response will be rejected if it is not properly formatted through this tool. Only use this tool once you are ready to provide your final answer.',
 				},
-				{
-					signal: this.getExecutionCancelSignal(),
-					callbacks: [streamingCallback],
-				},
+				{ signal: this.getExecutionCancelSignal() },
 			);
-
-			// Collect all streaming results
-			let finalResponse: any = {};
-
-			for await (const chunk of stream) {
-				if (chunk && typeof chunk === 'object') {
-					// Merge each chunk into the final response
-					finalResponse = { ...finalResponse, ...chunk };
-				}
-			}
-
-			return finalResponse;
 		});
 
 		const batchResults = await Promise.allSettled(batchPromises);
