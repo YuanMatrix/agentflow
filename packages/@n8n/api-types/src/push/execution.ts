@@ -49,6 +49,7 @@ export type NodeExecuteBefore = {
 		executionId: string;
 		nodeName: string;
 		data: ITaskStartedData;
+		intermediateText?: string;
 	};
 };
 

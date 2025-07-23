@@ -17,6 +17,7 @@ export type ExecutionLifecyleHookHandlers = {
 			this: ExecutionLifecycleHooks,
 			nodeName: string,
 			data: ITaskStartedData,
+			intermediateText?: string,
 		) => Promise<void> | void
 	>;
 

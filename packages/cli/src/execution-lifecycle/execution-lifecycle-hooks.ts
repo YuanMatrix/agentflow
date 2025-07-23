@@ -71,7 +71,7 @@ function hookFunctionsPush(
 	if (!pushRef) return;
 	const logger = Container.get(Logger);
 	const pushInstance = Container.get(Push);
-	hooks.addHandler('nodeExecuteBefore', function (nodeName, data) {
+	hooks.addHandler('nodeExecuteBefore', function (nodeName, data, intermediateText) {
 		const { executionId } = this;
 		// Push data to session which started workflow before each
 		// node which starts rendering
@@ -82,7 +82,7 @@ function hookFunctionsPush(
 		});
 
 		pushInstance.send(
-			{ type: 'nodeExecuteBefore', data: { executionId, nodeName, data } },
+			{ type: 'nodeExecuteBefore', data: { executionId, nodeName, data, intermediateText } },
 			pushRef,
 		);
 	});
