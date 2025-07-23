@@ -4,7 +4,6 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 	IHttpRequestOptions,
-	IBinaryData,
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
