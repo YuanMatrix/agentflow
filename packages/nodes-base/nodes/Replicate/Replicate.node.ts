@@ -37,9 +37,58 @@ export class Replicate implements INodeType {
 						name: 'FLUX Schnell',
 						value: 'black-forest-labs/flux-schnell',
 					},
+					{
+						name: 'FLUX Pro',
+						value: 'black-forest-labs/flux-pro',
+					},
+					{
+						name: 'FLUX Dev',
+						value: 'black-forest-labs/flux-dev',
+					},
+					{
+						name: 'FLUX Kontext Pro',
+						value: 'black-forest-labs/flux-kontext-pro',
+					},
+					{
+						name: 'Recraft V3',
+						value: 'recraft-ai/recraft-v3',
+					},
+					{
+						name: 'Stable Diffusion 3',
+						value: 'stability-ai/stable-diffusion-3',
+					},
 				],
 				default: 'black-forest-labs/flux-schnell',
 				description: 'The AI model to use for image generation',
+			},
+			{
+				displayName: 'Image Resolution',
+				name: 'imageResolution',
+				type: 'options',
+				options: [
+					{
+						name: '640x480',
+						value: '640x480',
+					},
+					{
+						name: '800x600',
+						value: '800x600',
+					},
+					{
+						name: '1024x768',
+						value: '1024x768',
+					},
+					{
+						name: '1280x720',
+						value: '1280x720',
+					},
+					{
+						name: '1920x1080',
+						value: '1920x1080',
+					},
+				],
+				default: '1024x768',
+				description: 'Select the resolution for the generated image',
 			},
 			{
 				displayName: 'Prompt Field',
@@ -62,6 +111,7 @@ export class Replicate implements INodeType {
 				const item = items[itemIndex];
 				const model = this.getNodeParameter('model', itemIndex) as string;
 				const promptField = this.getNodeParameter('promptField', itemIndex) as string;
+				const imageResolution = this.getNodeParameter('imageResolution', itemIndex) as string;
 
 				// Get prompt from input data with fallback logic
 				let prompt: string | undefined;
@@ -98,6 +148,7 @@ export class Replicate implements INodeType {
 					body: {
 						input: {
 							prompt: prompt,
+							resolution: imageResolution, // Add image resolution to the request body
 						},
 					},
 				};
