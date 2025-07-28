@@ -91,6 +91,32 @@ export class Replicate implements INodeType {
 				description: 'The resolution of the generated image',
 			},
 			{
+				displayName: 'Aspect Ratio',
+				name: 'aspectRatio',
+				type: 'options',
+				displayOptions: {
+					show: {
+						model: [
+							'black-forest-labs/flux-schnell',
+							'black-forest-labs/flux-pro',
+							'black-forest-labs/flux-dev',
+							'black-forest-labs/flux-kontext-pro',
+						],
+					},
+				},
+				options: [
+					{ name: '1:1', value: '1:1' },
+					{ name: '3:2', value: '3:2' },
+					{ name: '2:3', value: '2:3' },
+					{ name: '4:3', value: '4:3' },
+					{ name: '3:4', value: '3:4' },
+					{ name: '16:9', value: '16:9' },
+					{ name: '9:16', value: '9:16' },
+				],
+				default: '1:1',
+				description: 'The aspect ratio of the generated image',
+			},
+			{
 				displayName: 'Prompt Field',
 				name: 'promptField',
 				type: 'string',
@@ -98,6 +124,40 @@ export class Replicate implements INodeType {
 				description:
 					'The field name containing the prompt text (e.g., chatInput, output, message, etc.)',
 				placeholder: 'chatInput',
+			},
+			{
+				displayName: 'Width',
+				name: 'width',
+				type: 'options',
+				displayOptions: {
+					show: {
+						model: ['stability-ai/stable-diffusion-3'],
+					},
+				},
+				options: [
+					{ name: '512', value: 512 },
+					{ name: '768', value: 768 },
+					{ name: '1024', value: 1024 },
+				],
+				default: 768,
+				description: 'The width of the generated image',
+			},
+			{
+				displayName: 'Height',
+				name: 'height',
+				type: 'options',
+				displayOptions: {
+					show: {
+						model: ['stability-ai/stable-diffusion-3'],
+					},
+				},
+				options: [
+					{ name: '512', value: 512 },
+					{ name: '768', value: 768 },
+					{ name: '1024', value: 1024 },
+				],
+				default: 768,
+				description: 'The height of the generated image',
 			},
 		],
 	};
@@ -110,8 +170,21 @@ export class Replicate implements INodeType {
 			try {
 				const item = items[itemIndex];
 				const model = this.getNodeParameter('model', itemIndex) as string;
+				console.log(`Selected model: ${model}`); // Log the selected model
+
 				const promptField = this.getNodeParameter('promptField', itemIndex) as string;
-				const imageResolution = this.getNodeParameter('imageResolution', itemIndex) as string;
+				// Access 'imageResolution' only if the model is 'recraft-ai/recraft-v3'
+				let imageResolution: string | undefined;
+				if (model === 'recraft-ai/recraft-v3') {
+					imageResolution = this.getNodeParameter('imageResolution', itemIndex) as string;
+				}
+				let width: number | undefined;
+				let height: number | undefined;
+				if (model === 'stability-ai/stable-diffusion-3') {
+					width = this.getNodeParameter('width', itemIndex) as number;
+					height = this.getNodeParameter('height', itemIndex) as number;
+					console.log(`Width: ${width}, Height: ${height}`); // Log width and height
+				}
 
 				// Get prompt from input data with fallback logic
 				let prompt: string | undefined;
@@ -153,7 +226,25 @@ export class Replicate implements INodeType {
 					input.size = imageResolution;
 					input.style = 'any';
 					input.aspect_ratio = 'Not set';
+				} else if (model === 'stability-ai/stable-diffusion-3') {
+					input.width = width;
+					input.height = height;
 				}
+
+				let aspectRatio: string | undefined;
+				if (
+					[
+						'black-forest-labs/flux-schnell',
+						'black-forest-labs/flux-pro',
+						'black-forest-labs/flux-dev',
+						'black-forest-labs/flux-kontext-pro',
+					].includes(model)
+				) {
+					aspectRatio = this.getNodeParameter('aspectRatio', itemIndex) as string;
+					input.aspect_ratio = aspectRatio;
+				}
+
+				console.log(`Input object: ${JSON.stringify(input)}`); // Log the input object
 
 				// Use the input object in the request body
 				postOptions.body = { input };
