@@ -65,30 +65,30 @@ export class Replicate implements INodeType {
 				displayName: 'Image Resolution',
 				name: 'imageResolution',
 				type: 'options',
+				displayOptions: {
+					show: {
+						model: ['recraft-ai/recraft-v3'],
+					},
+				},
 				options: [
-					{
-						name: '640x480',
-						value: '640x480',
-					},
-					{
-						name: '800x600',
-						value: '800x600',
-					},
-					{
-						name: '1024x768',
-						value: '1024x768',
-					},
-					{
-						name: '1280x720',
-						value: '1280x720',
-					},
-					{
-						name: '1920x1080',
-						value: '1920x1080',
-					},
+					{ name: '1024x1024', value: '1024x1024' },
+					{ name: '1365x1024', value: '1365x1024' },
+					{ name: '1024x1365', value: '1024x1365' },
+					{ name: '1536x1024', value: '1536x1024' },
+					{ name: '1024x1536', value: '1024x1536' },
+					{ name: '1820x1024', value: '1820x1024' },
+					{ name: '1024x1820', value: '1024x1820' },
+					{ name: '1024x2048', value: '1024x2048' },
+					{ name: '2048x1024', value: '2048x1024' },
+					{ name: '1434x1024', value: '1434x1024' },
+					{ name: '1024x1434', value: '1024x1434' },
+					{ name: '1024x1280', value: '1024x1280' },
+					{ name: '1280x1024', value: '1280x1024' },
+					{ name: '1024x1707', value: '1024x1707' },
+					{ name: '1707x1024', value: '1707x1024' },
 				],
-				default: '1024x768',
-				description: 'Select the resolution for the generated image',
+				default: '1365x1024',
+				description: 'The resolution of the generated image',
 			},
 			{
 				displayName: 'Prompt Field',
@@ -145,13 +145,18 @@ export class Replicate implements INodeType {
 					method: 'POST',
 					url: postUrl,
 					json: true,
-					body: {
-						input: {
-							prompt: prompt,
-							resolution: imageResolution, // Add image resolution to the request body
-						},
-					},
 				};
+
+				const input: Record<string, any> = { prompt };
+
+				if (model === 'recraft-ai/recraft-v3') {
+					input.size = imageResolution;
+					input.style = 'any';
+					input.aspect_ratio = 'Not set';
+				}
+
+				// Use the input object in the request body
+				postOptions.body = { input };
 
 				const predictionResponse = await this.helpers.httpRequestWithAuthentication.call(
 					this,
