@@ -46,10 +46,10 @@ export class Replicate implements INodeType {
 						name: 'FLUX Dev',
 						value: 'black-forest-labs/flux-dev',
 					},
-					{
-						name: 'FLUX Kontext Pro',
-						value: 'black-forest-labs/flux-kontext-pro',
-					},
+					// {
+					// 	name: 'FLUX Kontext Pro',
+					// 	value: 'black-forest-labs/flux-kontext-pro',
+					// },
 					{
 						name: 'Recraft V3',
 						value: 'recraft-ai/recraft-v3',
@@ -101,7 +101,7 @@ export class Replicate implements INodeType {
 							'black-forest-labs/flux-schnell',
 							'black-forest-labs/flux-pro',
 							'black-forest-labs/flux-dev',
-							'black-forest-labs/flux-kontext-pro',
+							// 'black-forest-labs/flux-kontext-pro',
 						],
 					},
 				},
@@ -200,18 +200,18 @@ export class Replicate implements INodeType {
 
 				const input: Record<string, any> = { prompt };
 
-				let inputImage: string | undefined;
-				if (model === 'black-forest-labs/flux-kontext-pro') {
-					if (item.binary && item.binary.data) {
-						const binaryData = item.binary.data;
-						const base64Image = Buffer.from(binaryData.data, 'base64').toString('base64');
-						inputImage = `data:${binaryData.mimeType};base64,${base64Image}`;
-					} else {
-						throw new NodeOperationError(this.getNode(), 'No binary data found for input_image', {
-							itemIndex,
-						});
-					}
-				}
+				// let inputImage: string | undefined;
+				// if (model === 'black-forest-labs/flux-kontext-pro') {
+				// 	if (item.binary && item.binary.data) {
+				// 		const binaryData = item.binary.data;
+				// 		const base64Image = Buffer.from(binaryData.data, 'base64').toString('base64');
+				// 		inputImage = `data:${binaryData.mimeType};base64,${base64Image}`;
+				// 	} else {
+				// 		throw new NodeOperationError(this.getNode(), 'No binary data found for input_image', {
+				// 			itemIndex,
+				// 		});
+				// 	}
+				// }
 
 				if (model === 'recraft-ai/recraft-v3') {
 					let imageResolution: string | undefined;
@@ -228,7 +228,7 @@ export class Replicate implements INodeType {
 						'black-forest-labs/flux-schnell',
 						'black-forest-labs/flux-pro',
 						'black-forest-labs/flux-dev',
-						'black-forest-labs/flux-kontext-pro',
+						// 'black-forest-labs/flux-kontext-pro',
 					].includes(model)
 				) {
 					let aspectRatio: string | undefined;
@@ -236,9 +236,9 @@ export class Replicate implements INodeType {
 					input.aspect_ratio = aspectRatio;
 				}
 
-				if (model === 'black-forest-labs/flux-kontext-pro') {
-					input.input_image = inputImage;
-				}
+				// if (model === 'black-forest-labs/flux-kontext-pro') {
+				// 	input.input_image = inputImage;
+				// }
 
 				console.log(`Input object: ${JSON.stringify(input)}`); // Log the input object
 
